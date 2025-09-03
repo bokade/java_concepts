@@ -2,10 +2,7 @@ package com.example.javaIO.service;
 
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 @Service
 public class FileService {
@@ -38,6 +35,19 @@ public class FileService {
             return "📖 File Content: " + content.toString();
         } catch (IOException e) {
             return "❌ Error while reading: " + e.getMessage();
+        }
+    }
+
+
+    public void copyFile(String sourcePath, String destinationPath) throws IOException {
+        try(FileInputStream inputStream = new FileInputStream(new File(sourcePath));
+            FileOutputStream outputStream = new FileOutputStream(new File(destinationPath))) {
+
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
         }
     }
 }
