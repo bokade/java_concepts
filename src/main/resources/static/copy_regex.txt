@@ -1,0 +1,140 @@
+ STEP 1: Basic Concepts (1–2 days)
+A. What is Regex?
+
+It's a pattern to search, match, or manipulate text (strings).
+
+B. Start with these basics:
+
+Pattern	Meaning	Example
+.	any character	c.t → cat, cut
+\d	digit (0-9)	\d\d → 12
+\w	word character (a-zA-Z0-9_)	\w+ → hello123
+\s	whitespace	\s → space, tab
+^	start of string	^Hello → matches if line starts with Hello
+$	end of string	end$
+[]	character set	[aeiou]
+*	0 or more	go* → g, go, goo
++	1 or more	lo+ → lo, loo
+?	0 or 1	ho? → h or ho
+
+ STEP 2: Java Regex Classes (2 days)
+In Java, Regex is used via:
+
+java
+Copy
+Edit
+import java.util.regex.*;
+
+Pattern p = Pattern.compile("a+b");
+Matcher m = p.matcher("aaab");
+System.out.println(m.find()); // true
+Important Methods:
+
+Pattern.compile()
+
+Matcher.find()
+
+Matcher.matches()
+
+String.replaceAll()
+
+📌 Try simple examples:
+
+java
+Copy
+Edit
+"apple".matches("a.*e") // true
+"I have 2 dogs".replaceAll("\\d", "#") // "I have # dogs"
+🔹 STEP 3: Learn Grouping and Backreferences (2–3 days)
+Group: ()
+Backreference: \1, \2 (refers to previously matched groups)
+
+Example:
+
+java
+Copy
+Edit
+Pattern p = Pattern.compile("\\b(\\w+)\\s+\\1\\b", Pattern.CASE_INSENSITIVE);
+Matcher m = p.matcher("hello Hello world world");
+This matches repeated words.
+
+Try printing m.group(1) to see the matched duplicate word.
+
+🔹 STEP 4: Practice Simple Problems
+Validate email:
+
+java
+Copy
+Edit
+"abc@gmail.com".matches("[\\w.-]+@[\\w.-]+\\.com")
+Validate phone:
+
+java
+Copy
+Edit
+"9876543210".matches("[789]\\d{9}")
+Replace digits:
+
+java
+Copy
+Edit
+"I am 22 years old".replaceAll("\\d", "*") // I am ** years old
+🔹 STEP 5: Move to Medium Level (Backreferences, Nested Groups)
+Practice on:
+
+Remove duplicate words
+
+Extract domain from email
+
+Replace HTML tags
+
+Validate date dd-mm-yyyy
+
+🔹 STEP 6: HackerRank, LeetCode, Regex101
+Use regex101.com – Visualize each part of your regex.
+
+Try HackerRank Regex challenges – start with Easy level.
+
+Practice Java Regex Programs like:
+
+Find words starting with capital letter
+
+Extract words from paragraph
+
+Check if input is IP address
+
+✅ Suggested Daily Plan
+Day	What to Learn	Time
+Day 1	Regex basics: . * + [] \\d \\w	1–2 hrs
+Day 2	Java Pattern & Matcher usage	2 hrs
+Day 3	Practice replaceAll()	2 hrs
+Day 4	Learn group(), group(1), backreference \1	2 hrs
+Day 5–6	Do small projects or regex-based string problems	3 hrs
+Day 7+	Attempt HackerRank Medium problems	
+
+📘 Free Learning Resources (Highly Recommended)
+RegexOne.com – Beginner Friendly
+
+Java Regex - Baeldung
+
+Regex Visualizer
+
+YouTube: CodeWithHarry - Java Regex
+
+💪 Real-World Use of Regex in Java Projects
+Spring Boot Validation: @Pattern(regexp="...")
+
+Parsing logs
+
+Cleaning unwanted characters from input
+
+Searching or filtering keywords in text
+
+🔁 Want Personalized Practice?
+If you want, I can give you daily Java Regex tasks, starting from:
+
+Day 1: Match digits, letters, basic replace
+
+Day 2: Word matching, startsWith, endsWith
+
+Day 3: Grouping, duplicate word finder, etc.

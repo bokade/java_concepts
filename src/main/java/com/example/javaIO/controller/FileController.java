@@ -2,6 +2,7 @@ package com.example.javaIO.controller;
 
 
 import com.example.javaIO.service.FileService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,5 +25,16 @@ public class FileController {
     @GetMapping("/read")
     public String readFile() {
         return fileService.readFromFile();
+    }
+
+    @GetMapping("/copyFile")
+    public ResponseEntity<String> copyFile(@RequestParam String sourcePath, @RequestParam String destinationPath) {
+        try {
+            fileService.copyFile(sourcePath, destinationPath);
+            return ResponseEntity.ok("File copied successfully from " + sourcePath + " to " + destinationPath);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("File copy failed: " + e.getMessage());
+        }
     }
 }
