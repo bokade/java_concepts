@@ -37,4 +37,18 @@ public class FileController {
             return ResponseEntity.status(500).body("File copy failed: " + e.getMessage());
         }
     }
+
+    // POST → write content to file
+    @PostMapping("/writes")
+    public String writesFile(@RequestBody String content) {
+        return fileService.writesToFile(content);
+    }
+
+    // GET → read file content
+    @GetMapping("/reads")
+    public String readsFile() {
+        return fileService.readsFromFile();
+    }
+
+
 }
