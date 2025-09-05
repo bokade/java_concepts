@@ -1,14 +1,22 @@
 package com.example.javaIO.service;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class FileService {
 
     private static final String FILE_PATH = "hello_io.txt";
     private static final String FILES_PATH = "data.txt";
+    private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
 
     // ✅ File me likhna
     public String writeToFile(String content) {
@@ -77,4 +85,32 @@ public class FileService {
         }
         return sb.toString();
     }
+
+
+
+
+
+    public String triggerWorkflow(String subject, String body) {
+        RestTemplate restTemplate = new RestTemplate();
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("subject", subject);
+        payload.put("body", body);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response = restTemplate.postForEntity(N8N_WEBHOOK_URL, request, String.class);
+
+        System.out.println("n8n Response: " + response.getBody());
+
+        if(response != null && response.getStatusCode().is2xxSuccessful()){
+            return "Workflow triggered successfully!";
+        } else {
+            return "Failed to trigger workflow.";
+        }
+    }
+
 }

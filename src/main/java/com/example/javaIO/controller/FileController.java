@@ -5,6 +5,8 @@ import com.example.javaIO.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/io")
 public class FileController {
@@ -48,6 +50,14 @@ public class FileController {
     @GetMapping("/reads")
     public String readsFile() {
         return fileService.readsFromFile();
+    }
+
+
+    @PostMapping("/sendEmail")
+    public String sendEmail(@RequestBody Map<String, String> request) {
+        String subject = request.get("subject");
+        String message = request.get("message");
+        return fileService.triggerWorkflow(subject, message);
     }
 
 
