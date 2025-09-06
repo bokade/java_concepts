@@ -1,4 +1,4 @@
-package com.example.collections.map;
+package com.example.collections.set;
 
 import java.util.Arrays;
 import java.util.Comparator;
