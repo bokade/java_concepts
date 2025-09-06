@@ -7,6 +7,21 @@ import java.util.ListIterator;
 
 public class MyLinkedList {
     public static void main(String[] args) {
+
+        /*
+        🔑 Important point:
+
+        LinkedList implements List + Deque + Queue interfaces.
+
+        Iska matlab hai ki tumhe ArrayList ke saare List wale methods milte hain + extra methods jo Deque aur Queue se aate hain (addFirst, addLast, poll, peek, etc.).
+
+        Ye methods mostly stack + queue + deque operations ke liye useful hote hain.
+
+       */
+
+
+
+
         // Initialization
         LinkedList<String> list = new LinkedList<>();
 
