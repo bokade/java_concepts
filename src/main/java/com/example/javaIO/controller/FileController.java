@@ -5,6 +5,7 @@ import com.example.javaIO.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -58,6 +59,18 @@ public class FileController {
         String subject = request.get("subject");
         String message = request.get("message");
         return fileService.triggerWorkflow(subject, message);
+    }
+
+    // GET API -> Read file character by character
+    @GetMapping("/readss")
+    public String readFille() {
+        return fileService.readFile();
+    }
+
+    // POST API -> Write file line by line
+    @PostMapping("/writee")
+    public String writeFile(@RequestBody List<String> lines) {
+        return fileService.writeFile(lines);
     }
 
 
