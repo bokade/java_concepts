@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -17,7 +19,7 @@ public class FileService {
     private static final String FILE_PATH = "hello_io.txt";
     private static final String FILES_PATH = "data.txt";
     private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
-
+    private static final String FILEss_PATH = "sample.txt";
     // ✅ File me likhna
     public String writeToFile(String content) {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
@@ -87,6 +89,34 @@ public class FileService {
     }
 
 
+
+
+
+    // Read file character by character
+    public String readFile() {
+        StringBuilder content = new StringBuilder();
+        try (Reader reader = new FileReader(FILEss_PATH, StandardCharsets.UTF_8)) {
+            int ch;
+            while ((ch = reader.read()) != -1) {
+                content.append((char) ch);
+            }
+        } catch (IOException e) {
+            return "Error reading file: " + e.getMessage();
+        }
+        return content.toString();
+    }
+
+    // Write file line by line
+    public String writeFile(List<String> lines) {
+        try (Writer writer = new FileWriter(FILEss_PATH, StandardCharsets.UTF_8, false)) {
+            for (String line : lines) {
+                writer.write(line + System.lineSeparator());
+            }
+        } catch (IOException e) {
+            return "Error writing file: " + e.getMessage();
+        }
+        return "File written successfully!";
+    }
 
 
 
