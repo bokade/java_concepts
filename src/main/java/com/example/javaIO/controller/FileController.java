@@ -99,4 +99,15 @@ public class FileController {
     }
 
 
+    @PostMapping("/sendEmails")
+    public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
+        String subject = req.get("subject");
+        String body = req.get("body");
+        if (subject == null || body == null) {
+            return ResponseEntity.badRequest().body("subject and body are required");
+        }
+        fileService.process(subject, body);
+        return ResponseEntity.ok("Saved locally & pushed to n8n");
+    }
+
 }
