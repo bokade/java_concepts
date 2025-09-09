@@ -1,5 +1,7 @@
 package com.example.javaIO.service;
-
+import com.example.javaIO.model.Submission;
+import com.example.javaIO.repository.SubmissionRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -11,17 +13,29 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class FileService {
+    private final SubmissionRepository repo;
+    private final RestTemplate restTemplate;
 
     private static final String FILE_PATH = "hello_io.txt";
     private static final String FILES_PATH = "data.txt";
     private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
     private static final String FILEss_PATH = "sample.txt";
+
+
+    @Value("${n8n.webhook.url}")
+    private String n8nWebhookUrl;
+
+ public FileService(SubmissionRepository repo, RestTemplate restTemplate){
+     this.repo = repo;
+     this.restTemplate = restTemplate;
+ }
     // ✅ File me likhna
     public String writeToFile(String content) {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
@@ -192,6 +206,32 @@ public class FileService {
         Path file = Path.of(path);
         Files.writeString(file, "Hello\nThis is a test file\nBuffered Streams in Java\nSpring Boot Demo");
         return "Sample file created at " + file.toAbsolutePath();
+    }
+
+
+    public void process(String subject, String body) {
+        Instant now = Instant.now();
+
+        // 1) Save to local MongoDB
+        Submission s = new Submission(subject, body, now);
+        repo.save(s);
+
+        // 2) Trigger n8n webhook with subject, body, receivedAt
+        try {
+            Map<String,String> payload = new HashMap<>();
+            payload.put("subject", subject);
+            payload.put("body", body);
+            payload.put("receivedAt", now.toString());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<Map<String,String>> request = new HttpEntity<>(payload, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(n8nWebhookUrl, request, String.class);
+            System.out.println("n8n response: " + response.getStatusCode() + " body: " + response.getBody());
+        } catch (Exception e) {
+            System.out.println("Failed to call n8n: " + e.getMessage());
+        }
     }
 
 
