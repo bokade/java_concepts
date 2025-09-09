@@ -5,6 +5,7 @@ import com.example.javaIO.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +72,30 @@ public class FileController {
     @PostMapping("/writee")
     public String writeFile(@RequestBody List<String> lines) {
         return fileService.writeFile(lines);
+    }
+
+    // Create sample text file
+    @PostMapping("/create")
+    public String createFile(@RequestParam String path) throws IOException {
+        return fileService.createSampleTextFile(path);
+    }
+
+    // Copy text file using BufferedReader/Writer
+    @PostMapping("/copy-text")
+    public String copyText(@RequestParam String source, @RequestParam String dest) throws IOException {
+        return fileService.copyTextFile(source, dest);
+    }
+
+    // Copy large file WITH buffer
+    @PostMapping("/copy-large-buffered")
+    public String copyLargeBuffered(@RequestParam String source, @RequestParam String dest) throws IOException {
+        return fileService.copyLargeFileWithBuffer(source, dest);
+    }
+
+    // Copy large file WITHOUT buffer
+    @PostMapping("/copy-large-unbuffered")
+    public String copyLargeUnbuffered(@RequestParam String source, @RequestParam String dest) throws IOException {
+        return fileService.copyLargeFileWithoutBuffer(source, dest);
     }
 
 

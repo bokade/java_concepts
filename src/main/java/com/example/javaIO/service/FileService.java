@@ -9,6 +9,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +51,6 @@ public class FileService {
         }
     }
 
-
     public void copyFile(String sourcePath, String destinationPath) throws IOException {
         try(FileInputStream inputStream = new FileInputStream(new File(sourcePath));
             FileOutputStream outputStream = new FileOutputStream(new File(destinationPath))) {
@@ -61,8 +62,6 @@ public class FileService {
             }
         }
     }
-
-
 
     // Write content line by line
     public String writesToFile(String content) {
@@ -87,10 +86,6 @@ public class FileService {
         }
         return sb.toString();
     }
-
-
-
-
 
     // Read file character by character
     public String readFile() {
@@ -119,7 +114,6 @@ public class FileService {
     }
 
 
-
     public String triggerWorkflow(String subject, String body) {
         RestTemplate restTemplate = new RestTemplate();
 
@@ -142,5 +136,64 @@ public class FileService {
             return "Failed to trigger workflow.";
         }
     }
+
+    // 1. Copy text file using BufferedReader/Writer
+    public String copyTextFile(String sourcePath, String destPath) throws IOException {
+        long start = System.currentTimeMillis();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(sourcePath));
+             BufferedWriter writer = new BufferedWriter(new FileWriter(destPath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line);
+                writer.newLine(); // preserve line breaks
+            }
+        }
+
+        long end = System.currentTimeMillis();
+        return "Text file copied successfully in " + (end - start) + " ms";
+    }
+
+    // 2. Copy large file with buffer
+    public String copyLargeFileWithBuffer(String sourcePath, String destPath) throws IOException {
+        long start = System.currentTimeMillis();
+
+        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(sourcePath));
+             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destPath))) {
+            byte[] buffer = new byte[8192]; // 8 KB buffer
+            int bytesRead;
+            while ((bytesRead = bis.read(buffer)) != -1) {
+                bos.write(buffer, 0, bytesRead);
+            }
+        }
+
+        long end = System.currentTimeMillis();
+        return "Large file copied WITH buffer in " + (end - start) + " ms";
+    }
+
+    // 3. Copy large file without buffer
+    public String copyLargeFileWithoutBuffer(String sourcePath, String destPath) throws IOException {
+        long start = System.currentTimeMillis();
+
+        try (FileInputStream fis = new FileInputStream(sourcePath);
+             FileOutputStream fos = new FileOutputStream(destPath)) {
+            int data;
+            while ((data = fis.read()) != -1) {
+                fos.write(data);
+            }
+        }
+
+        long end = System.currentTimeMillis();
+        return "Large file copied WITHOUT buffer in " + (end - start) + " ms";
+    }
+
+    // Utility - create test file
+    public String createSampleTextFile(String path) throws IOException {
+        Path file = Path.of(path);
+        Files.writeString(file, "Hello\nThis is a test file\nBuffered Streams in Java\nSpring Boot Demo");
+        return "Sample file created at " + file.toAbsolutePath();
+    }
+
+
 
 }
