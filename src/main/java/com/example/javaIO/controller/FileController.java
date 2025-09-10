@@ -1,11 +1,13 @@
 package com.example.javaIO.controller;
 
 
+import com.example.javaIO.model.PromptRequest;
 import com.example.javaIO.service.FileService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +110,15 @@ public class FileController {
         }
         fileService.process(subject, body);
         return ResponseEntity.ok("Saved locally & pushed to n8n");
+    }
+
+
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody PromptRequest request) {
+        String answer = fileService.sendPromptToN8n(request.getPrompt());
+        Map<String, Object> out = new HashMap<>();
+        out.put("answer", answer);
+        return ResponseEntity.ok(out);
     }
 
 }

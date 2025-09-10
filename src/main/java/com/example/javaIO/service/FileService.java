@@ -1,12 +1,16 @@
 package com.example.javaIO.service;
 import com.example.javaIO.model.Submission;
 import com.example.javaIO.repository.SubmissionRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
@@ -28,9 +32,11 @@ public class FileService {
     private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
     private static final String FILEss_PATH = "sample.txt";
 
-
     @Value("${n8n.webhook.url}")
     private String n8nWebhookUrl;
+
+    @Value("${n8n.webhook.chat-url}")
+    private String n8nWebhookUrlChat;
 
  public FileService(SubmissionRepository repo, RestTemplate restTemplate){
      this.repo = repo;
@@ -235,5 +241,42 @@ public class FileService {
     }
 
 
+    public String sendPromptToN8n(String prompt) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<Map> response;
+        try {
+            response = restTemplate.postForEntity(n8nWebhookUrlChat, request, Map.class);
+        } catch (HttpStatusCodeException ex) {
+            // include body for debugging
+            throw new RuntimeException("n8n error: " + ex.getStatusCode() + " - " + ex.getResponseBodyAsString(), ex);
+        } catch (ResourceAccessException ex) {
+            throw new RuntimeException("Timeout / network error calling n8n: " + ex.getMessage(), ex);
+        }
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("n8n returned non-200: " + response.getStatusCodeValue());
+        }
+
+        Map<String, Object> respBody = response.getBody();
+        if (respBody == null) return "";
+
+        // prefer explicit "answer" field (we'll make n8n return this)
+        Object answer = respBody.get("answer");
+        if (answer != null) return answer.toString();
+
+        // fallback: return entire body as string
+        try {
+            return new ObjectMapper().writeValueAsString(respBody);
+        } catch (JsonProcessingException e) {
+            return respBody.toString();
+        }
+    }
 
 }
