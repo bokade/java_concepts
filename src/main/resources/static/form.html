@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Send Email Form</title>
+</head>
+<body>
+<h2>Send Email via Spring Boot</h2>
+<form id="emailForm">
+  <label>Subject:</label><br/>
+  <input type="text" id="subject" name="subject" required /><br/><br/>
+
+  <label>Message:</label><br/>
+  <textarea id="body" name="body" rows="5" cols="40" required></textarea><br/><br/>
+
+  <button type="submit">Submit</button>
+</form>
+
+<p id="response"></p>
+
+<script>
+  document.getElementById("emailForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const subject = document.getElementById("subject").value;
+    const body = document.getElementById("body").value;
+
+    const response = await fetch("/io/sendEmails", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ subject, body })
+    });
+
+    const text = await response.text();
+    document.getElementById("response").innerText = text;
+  });
+</script>
+</body>
+</html>
