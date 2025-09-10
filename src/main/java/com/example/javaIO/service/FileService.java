@@ -239,7 +239,7 @@ public class FileService {
             System.out.println("Failed to call n8n: " + e.getMessage());
         }
     }
-
+/*
 
     public String sendPromptToN8n(String prompt) {
         Map<String, Object> payload = new HashMap<>();
@@ -253,6 +253,7 @@ public class FileService {
         ResponseEntity<Map> response;
         try {
             response = restTemplate.postForEntity(n8nWebhookUrlChat, request, Map.class);
+            System.out.println("response: "+response);
         } catch (HttpStatusCodeException ex) {
             // include body for debugging
             throw new RuntimeException("n8n error: " + ex.getStatusCode() + " - " + ex.getResponseBodyAsString(), ex);
@@ -265,6 +266,7 @@ public class FileService {
         }
 
         Map<String, Object> respBody = response.getBody();
+        System.out.println("respBody: "+response.getBody());
         if (respBody == null) return "";
 
         // prefer explicit "answer" field (we'll make n8n return this)
@@ -279,4 +281,49 @@ public class FileService {
         }
     }
 
+*/
+
+    public String sendPromptToN8n(String prompt) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            // 👇 ab Map ki jagah String use kar
+            response = restTemplate.postForEntity(n8nWebhookUrlChat, request, String.class);
+           // System.out.println("Raw response: " + response.getBody());
+        } catch (HttpStatusCodeException ex) {
+            throw new RuntimeException("n8n error: " + ex.getStatusCode() + " - " + ex.getResponseBodyAsString(), ex);
+        } catch (ResourceAccessException ex) {
+            throw new RuntimeException("Timeout / network error calling n8n: " + ex.getMessage(), ex);
+        }
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("n8n returned non-200: " + response.getStatusCodeValue());
+        }
+
+        String respBody = response.getBody();
+        if (respBody == null) return "";
+
+        // 🔹 Try parsing as JSON
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> json = mapper.readValue(respBody, Map.class);
+
+            Object answer = json.get("answer");
+            if (answer != null) {
+                return answer.toString();
+            } else {
+                return mapper.writeValueAsString(json); // fallback full json
+            }
+        } catch (Exception e) {
+            // 🔹 If not JSON, return raw string
+            return respBody;
+        }
+    }
 }
