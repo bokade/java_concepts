@@ -100,6 +100,17 @@ public class FileController {
         return fileService.copyLargeFileWithoutBuffer(source, dest);
     }
 
+    // ✅ API 1: Process string (StringReader -> StringWriter)
+    @GetMapping("/string-process")
+    public String processString(@RequestParam String input) throws IOException {
+        return fileService.processString(input);
+    }
+
+    // ✅ API 2: Format file (File -> PrintWriter)
+    @GetMapping("/file-format")
+    public String formatFile() throws IOException {
+        return fileService.formatFile();
+    }
 
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
