@@ -17,6 +17,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -239,6 +240,41 @@ public class FileService {
             System.out.println("Failed to call n8n: " + e.getMessage());
         }
     }
+
+
+    // 1. StringReader -> StringWriter
+    public String processString(String input) throws IOException {
+        StringReader reader = new StringReader(input);
+        StringWriter writer = new StringWriter();
+
+        int data;
+        while ((data = reader.read()) != -1) {
+            writer.write(Character.toUpperCase(data)); // convert to uppercase
+        }
+
+        return writer.toString();
+    }
+
+    // 2. File -> Formatted output using PrintWriter
+    public String formatFile() throws IOException {
+        Path inputPath = Paths.get("sample.txt");
+        Path outputPath = Paths.get("output.txt");
+
+        try (
+                BufferedReader br = Files.newBufferedReader(inputPath);
+                PrintWriter pw = new PrintWriter(Files.newBufferedWriter(outputPath))
+        ) {
+            String line;
+            int lineNum = 1;
+            while ((line = br.readLine()) != null) {
+                pw.printf("Line %02d: %s%n", lineNum++, line.toUpperCase());
+            }
+        }
+
+        return "File formatted successfully. Check output.txt";
+    }
+
+
 /*
 
     public String sendPromptToN8n(String prompt) {
