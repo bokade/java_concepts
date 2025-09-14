@@ -112,6 +112,32 @@ public class FileController {
         return fileService.formatFile();
     }
 
+
+    // 🔹 Copy File API (JSON Body)
+    @PostMapping("/copy")
+    public String copyFile(@RequestBody Map<String, String> request) {
+        try {
+            String source = request.get("source");
+            String destination = request.get("destination");
+            return fileService.copyyFile(source, destination);
+        } catch (Exception e) {
+            return "Error while copying: " + e.getMessage();
+        }
+    }
+
+    // 🔹 Merge Files API (JSON Body)
+    @PostMapping("/merge")
+    public String mergeFiles(@RequestBody Map<String, String> request) {
+        try {
+            String file1 = request.get("file1");
+            String file2 = request.get("file2");
+            String destination = request.get("destination");
+            return fileService.mergeFiles(file1, file2, destination);
+        } catch (Exception e) {
+            return "Error while merging: " + e.getMessage();
+        }
+    }
+
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
         String subject = req.get("subject");

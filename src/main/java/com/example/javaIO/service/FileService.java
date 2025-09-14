@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
@@ -272,6 +273,28 @@ public class FileService {
         }
 
         return "File formatted successfully. Check output.txt";
+    }
+
+
+    public String copyyFile(String sourcePath, String destPath) throws IOException {
+        Files.copy(Paths.get(sourcePath), Paths.get(destPath), StandardCopyOption.REPLACE_EXISTING);
+        return "File copied from " + sourcePath + " to " + destPath;
+    }
+
+    // 🔹 Merge two text files into one
+
+    public String mergeFiles(String file1Path, String file2Path, String destPath) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(destPath, true))) {
+            // Write file1 content
+            Files.lines(Paths.get(file1Path)).forEach(line -> {
+                try { writer.write(line + System.lineSeparator()); } catch (IOException e) { e.printStackTrace(); }
+            });
+            // Write file2 content
+            Files.lines(Paths.get(file2Path)).forEach(line -> {
+                try { writer.write(line + System.lineSeparator()); } catch (IOException e) { e.printStackTrace(); }
+            });
+        }
+        return "Files merged into " + destPath;
     }
 
 
