@@ -138,6 +138,20 @@ public class FileController {
         }
     }
 
+
+
+
+    @PostMapping("/reading")
+    public String readFile(@RequestBody String path) {
+        try {
+            // JSON body me agar string aayegi, to uske andar quotes honge → unhe trim karo
+            path = path.replace("\"", "").trim();
+            return fileService.readFileContent(path);
+        } catch (Exception e) {
+            return "Error reading file: " + e.getMessage();
+        }
+    }
+
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
         String subject = req.get("subject");

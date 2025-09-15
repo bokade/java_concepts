@@ -275,6 +275,21 @@ public class FileService {
         return "File formatted successfully. Check output.txt";
     }
 
+    public String readFileContent(String filePath) throws IOException {
+        StringBuilder content = new StringBuilder();
+
+        // Reader with encoding
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(filePath), StandardCharsets.UTF_8))) {
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line); // ✅ Console pe print
+                content.append(line).append("\n"); // ✅ Response me bhi bhejna
+            }
+        }
+        return content.toString();
+    }
 
     public String copyyFile(String sourcePath, String destPath) throws IOException {
         Files.copy(Paths.get(sourcePath), Paths.get(destPath), StandardCopyOption.REPLACE_EXISTING);
