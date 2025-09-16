@@ -4,10 +4,7 @@ import com.example.javaIO.repository.SubmissionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
@@ -39,6 +36,10 @@ public class FileService {
 
     @Value("${n8n.webhook.chat-url}")
     private String n8nWebhookUrlChat;
+
+    @Value("${n8n.webhook.secret}")
+    private String n8nWebhookSecret;
+
 
  public FileService(SubmissionRepository repo, RestTemplate restTemplate){
      this.repo = repo;
@@ -357,6 +358,7 @@ public class FileService {
 
 */
 
+    /*
     public String sendPromptToN8n(String prompt) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("prompt", prompt);
@@ -399,6 +401,127 @@ public class FileService {
             // 🔹 If not JSON, return raw string
             return respBody;
         }
+    }
+
+
+*/
+
+    /*
+    public String sendPromptToN8n(String prompt) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-API-KEY", n8nWebhookSecret); // <-- header with secret
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            // 👇 ab Map ki jagah String use kar
+            response = restTemplate.postForEntity(n8nWebhookUrlChat, request, String.class);
+             System.out.println("Raw response: " + response.getBody());
+        } catch (HttpStatusCodeException ex) {
+            throw new RuntimeException("n8n error: " + ex.getStatusCode() + " - " + ex.getResponseBodyAsString(), ex);
+        } catch (ResourceAccessException ex) {
+            throw new RuntimeException("Timeout / network error calling n8n: " + ex.getMessage(), ex);
+        }
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("n8n returned non-200: " + response.getStatusCodeValue());
+        }
+
+        String respBody = response.getBody();
+        if (respBody == null) return "";
+
+        // 🔹 Try parsing as JSON
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, Object> json = mapper.readValue(respBody, Map.class);
+
+            Object answer = json.get("answer");
+            if (answer != null) {
+                return answer.toString();
+            } else {
+                return mapper.writeValueAsString(json); // fallback full json
+            }
+        } catch (Exception e) {
+            // 🔹 If not JSON, return raw string
+            return respBody;
+        }
+    }
+*/
+/*
+    public ResponseEntity<Map<String, Object>> sendPromptToN8n(String prompt) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        //headers.set("X-API-KEY", n8nWebhookSecret); // Use this if you have key
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.postForEntity(n8nWebhookUrlChat, request, String.class);
+            System.out.println("Raw response: " + response.getBody());
+        } catch (ResourceAccessException ex) {
+            // Network timeout etc.
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Network error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(error);
+        }
+
+        // Now handle non-2xx status codes manually
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "n8n returned " + response.getStatusCodeValue() + " - " + response.getBody());
+            return ResponseEntity.status(response.getStatusCode()).body(error);
+        }
+
+        // 2xx successful response
+        Map<String, Object> out = new HashMap<>();
+        out.put("answer", response.getBody());
+        return ResponseEntity.ok(out);
+    }
+*/
+
+    public ResponseEntity<Map<String, Object>> sendPromptToN8n(String prompt) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        // Uncomment and set the secret if you have one
+         headers.set("X-API-KEY", n8nWebhookSecret);
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.postForEntity(n8nWebhookUrlChat, request, String.class);
+            System.out.println("Raw response: " + response.getBody());
+        } catch (ResourceAccessException ex) {
+            // Network timeout or connectivity error
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Network error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(error);
+        }
+
+        // Handle non-2xx status codes manually
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "n8n returned " + response.getStatusCodeValue() +
+                    (response.getBody() != null ? " - " + response.getBody() : ""));
+            return ResponseEntity.status(response.getStatusCode()).body(error);
+        }
+
+        // Successful 2xx response
+        Map<String, Object> out = new HashMap<>();
+        out.put("answer", response.getBody());
+        return ResponseEntity.ok(out);
     }
 
 }

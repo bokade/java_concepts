@@ -163,7 +163,7 @@ public class FileController {
         return ResponseEntity.ok("Saved locally & pushed to n8n");
     }
 
-
+/*
     @PostMapping("/chat")
     public ResponseEntity<Map<String, Object>> chat(@RequestBody PromptRequest request) {
         String answer = fileService.sendPromptToN8n(request.getPrompt());
@@ -172,5 +172,22 @@ public class FileController {
         return ResponseEntity.ok(out);
     }
 
+*/
+    //giving wrong status code
+    @PostMapping("/chat-secure")
+    public ResponseEntity<Map<String, Object>> chatSecure(@RequestBody PromptRequest request) {
+        ResponseEntity<Map<String, Object>> answer = fileService.sendPromptToN8n(request.getPrompt());
+        Map<String, Object> out = new HashMap<>();
+        out.put("answer", answer);
+        System.out.println("response: " + answer);
+        return ResponseEntity.ok(out);
+    }
+
+
+    @PostMapping("/chat-secure-header")
+    public ResponseEntity<Map<String, Object>> chatSecureHeader(@RequestBody PromptRequest request) {
+        // Directly return the service ResponseEntity
+        return fileService.sendPromptToN8n(request.getPrompt());
+    }
 
 }
