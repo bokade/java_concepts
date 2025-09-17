@@ -1,4 +1,5 @@
 package com.example.javaIO.service;
+import com.example.javaIO.model.FileInfo;
 import com.example.javaIO.model.Submission;
 import com.example.javaIO.repository.SubmissionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -17,6 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -312,6 +316,92 @@ public class FileService {
         }
         return "Files merged into " + destPath;
     }
+
+    public List<FileInfo> listFiles(String dirPath, boolean recursive) throws IOException {
+        File base = new File(dirPath);
+        if (!base.exists()) {
+            throw new IllegalArgumentException("Path does not exist: " + dirPath);
+        }
+        if (!base.isDirectory()) {
+            throw new IllegalArgumentException("Provided path is not a directory: " + dirPath);
+        }
+        List<FileInfo> out = new ArrayList<>();
+        traverse(base, base, out, recursive);
+        return out;
+    }
+
+    private void traverse(File base, File dir, List<FileInfo> out, boolean recursive) throws IOException {
+        File[] children = dir.listFiles();
+        if (children == null) {
+            // could be permissions issue or IO error; just return silently or log
+            return;
+        }
+        for (File f : children) {
+            boolean isHidden;
+            try {
+                isHidden = f.isHidden();
+            } catch (Exception ex) {
+                // fallback: unix-style hidden file check
+                isHidden = f.getName().startsWith(".");
+            }
+
+            boolean isDir = f.isDirectory();
+            boolean isFile = f.isFile();
+            long size = isFile ? f.length() : 0L;
+
+            // relative path relative to base
+            String relative;
+            try {
+                Path basePath = base.toPath().toRealPath();
+                Path filePath = f.toPath().toRealPath();
+                relative = basePath.relativize(filePath).toString();
+            } catch (IOException e) {
+                // fallback to name if canonicalization fails
+                relative = f.getName();
+            }
+
+            FileInfo fi = new FileInfo(
+                    f.getName(),
+                    relative,
+                    f.getAbsolutePath(),
+                    isDir,
+                    isFile,
+                    isHidden,
+                    size,
+                    humanReadableByteCount(size),
+                    f.lastModified(),
+                    isoFromEpochMillis(f.lastModified())
+            );
+            out.add(fi);
+
+            if (isDir && recursive) {
+                traverse(base, f, out, true);
+            }
+        }
+    }
+
+    private static String humanReadableByteCount(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format("%.1f %sB", bytes / Math.pow(1024, exp), pre);
+    }
+
+    private static String isoFromEpochMillis(long epochMillis) {
+        if (epochMillis <= 0) return "";
+        Instant t = Instant.ofEpochMilli(epochMillis);
+        return DateTimeFormatter.ISO_INSTANT.withZone(ZoneOffset.UTC).format(t);
+    }
+
+
+
+
+
+
+
+
+
+
 
 
 /*

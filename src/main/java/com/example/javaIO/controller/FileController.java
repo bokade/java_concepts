@@ -1,8 +1,11 @@
 package com.example.javaIO.controller;
 
 
+import com.example.javaIO.model.FileInfo;
+import com.example.javaIO.model.FilePathRequest;
 import com.example.javaIO.model.PromptRequest;
 import com.example.javaIO.service.FileService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -149,6 +152,25 @@ public class FileController {
             return fileService.readFileContent(path);
         } catch (Exception e) {
             return "Error reading file: " + e.getMessage();
+        }
+    }
+
+    @PostMapping("/listFiles")
+    public ResponseEntity<?> listFiles(
+            @RequestBody FilePathRequest request,
+            @RequestParam(name = "recursive", defaultValue = "false") boolean recursive) {
+
+        try {
+            List<FileInfo> files = fileService.listFiles(request.getPath(), recursive);
+            return ResponseEntity.ok(files);
+        } catch (IllegalArgumentException iae) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", iae.getMessage()));
+        } catch (IOException ioe) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "I/O Error: " + ioe.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Unexpected error: " + e.getMessage()));
         }
     }
 
