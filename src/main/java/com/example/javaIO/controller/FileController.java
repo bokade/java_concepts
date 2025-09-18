@@ -212,4 +212,9 @@ public class FileController {
         return fileService.sendPromptToN8n(request.getPrompt());
     }
 
+    @PostMapping("/chat-secure-jwt")
+    public ResponseEntity<Map<String, Object>> chatSecureJwt(@RequestBody PromptRequest request) {
+        return fileService.sendPromptToN8nJwt(request.getPrompt());
+    }
+
 }

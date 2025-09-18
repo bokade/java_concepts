@@ -4,6 +4,9 @@ import com.example.javaIO.model.Submission;
 import com.example.javaIO.repository.SubmissionRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.crypto.SecretKey;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -20,10 +24,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FileService {
@@ -44,6 +45,11 @@ public class FileService {
     @Value("${n8n.webhook.secret}")
     private String n8nWebhookSecret;
 
+    @Value("${n8n.webhook.url.chat.jwt}")
+    private String n8nWebhookUrlChatJwt;
+
+    @Value("${n8n.jwt.secret}")
+    private String n8nJwtSecret;
 
  public FileService(SubmissionRepository repo, RestTemplate restTemplate){
      this.repo = repo;
@@ -614,4 +620,58 @@ public class FileService {
         return ResponseEntity.ok(out);
     }
 
+
+    public ResponseEntity<Map<String, Object>> sendPromptToN8nJwt(String prompt) {
+        // payload
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        // create signing key (HS256)
+        byte[] keyBytes = n8nJwtSecret.getBytes(StandardCharsets.UTF_8);
+         // byte[] keyBytes = Base64.getDecoder().decode(n8nJwtSecret);
+          SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+
+        Instant now = Instant.now();
+        String token = Jwts.builder()
+                .setIssuer("springboot-app")
+                .setSubject("n8n-call")
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusSeconds(120))) // short validity
+                .claim("app", "springboot")
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(token); // sets Authorization: Bearer <token>
+
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.postForEntity(n8nWebhookUrlChatJwt, request, String.class);
+            System.out.println("Raw response: " + response.getBody());
+        } catch (ResourceAccessException ex) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Network error: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT).body(error);
+        }
+
+// n8n JWT Node failed → invalid
+        if (response.getStatusCodeValue() != 200) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "n8n returned " + response.getStatusCodeValue() +
+                    (response.getBody() != null ? " - " + response.getBody() : ""));
+            // if n8n JWT invalid → send 401 Unauthorized
+            if (response.getBody() != null && response.getBody().contains("can't be verified")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+            }
+            return ResponseEntity.status(response.getStatusCode()).body(error);
+        }
+
+// success
+        Map<String, Object> out = new HashMap<>();
+        out.put("answer", response.getBody());
+        return ResponseEntity.ok(out);
+    }
 }
