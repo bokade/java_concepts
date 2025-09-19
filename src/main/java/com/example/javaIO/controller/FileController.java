@@ -5,11 +5,19 @@ import com.example.javaIO.model.FileInfo;
 import com.example.javaIO.model.FilePathRequest;
 import com.example.javaIO.model.PromptRequest;
 import com.example.javaIO.service.FileService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +182,22 @@ public class FileController {
         }
     }
 
+
+    // Create directory and files
+    @PostMapping("/create-dir")
+    public String createDirectory(@RequestBody Map<String, Object> request) throws IOException {
+        String dirName = (String) request.get("dirName");
+        String[] fileNames = ((java.util.List<String>) request.get("fileNames")).toArray(new String[0]);
+
+        return fileService.createDirWithFiles(dirName, fileNames);
+    }
+
+    // Delete directory recursively
+    @DeleteMapping("/delete/{dirName}")
+    public String deleteDirectory(@PathVariable String dirName) {
+        return fileService.deleteDirectory(dirName);
+    }
+
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
         String subject = req.get("subject");
@@ -215,6 +239,44 @@ public class FileController {
     @PostMapping("/chat-secure-jwt")
     public ResponseEntity<Map<String, Object>> chatSecureJwt(@RequestBody PromptRequest request) {
         return fileService.sendPromptToN8nJwt(request.getPrompt());
+    }
+
+
+    @Value("${n8n.jwt.secret}")
+    private String n8nJwtSecret;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
+        String username = body.get("username");
+        String password = body.get("password");
+
+        // Dummy check (real project me DB se validate karna hoga)
+        if (!"swapnil".equals(username) || !"swapnil123".equals(password)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid credentials"));
+        }
+
+        byte[] keyBytes = n8nJwtSecret.getBytes(StandardCharsets.UTF_8);
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+
+        Instant now = Instant.now();
+        String token = Jwts.builder()
+                .setIssuer("springboot-app")
+                .setSubject(username)
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusSeconds(300))) // 5 min valid
+                .claim("role", "USER") // custom claim
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+
+        return ResponseEntity.ok(Map.of("token", token));
+    }
+
+    @PostMapping("/chat-secure-jwt-with-header-token")
+    public ResponseEntity<Map<String, Object>> chatSecure(@RequestBody Map<String, String> body,
+                                                          @RequestHeader("Authorization") String authHeader) {
+        String prompt = body.get("prompt");
+        return fileService.sendPromptToN8nJwt(prompt, authHeader);
     }
 
 }

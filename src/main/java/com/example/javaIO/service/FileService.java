@@ -35,6 +35,7 @@ public class FileService {
     private static final String FILES_PATH = "data.txt";
     private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
     private static final String FILEss_PATH = "sample.txt";
+    private final String BASE_PATH = "D:/file-storage"; // yahan sab files banenge
 
     @Value("${n8n.webhook.url}")
     private String n8nWebhookUrl;
@@ -402,6 +403,52 @@ public class FileService {
 
 
 
+    // Create directory and files
+    public String createDirWithFiles(String dirName, String[] fileNames) throws IOException {
+        File dir = new File(BASE_PATH + "/" + dirName);
+
+        if (!dir.exists()) {
+            boolean created = dir.mkdirs();
+            if (!created) {
+                throw new IOException("Directory could not be created");
+            }
+        }
+
+        StringBuilder result = new StringBuilder("Directory created: " + dir.getAbsolutePath() + "\n");
+
+        for (String fileName : fileNames) {
+            File file = new File(dir, fileName);
+            if (file.createNewFile()) {
+                result.append("File created: ").append(file.getName()).append("\n");
+            } else {
+                result.append("File already exists: ").append(file.getName()).append("\n");
+            }
+        }
+        return result.toString();
+    }
+
+    // Recursive delete directory
+    public String deleteDirectory(String dirName) {
+        File dir = new File(BASE_PATH + "/" + dirName);
+
+        if (!dir.exists()) {
+            return "Directory does not exist: " + dirName;
+        }
+
+        deleteRecursively(dir);
+        return "Directory deleted: " + dirName;
+    }
+
+    private void deleteRecursively(File file) {
+        if (file.isDirectory()) {
+            for (File child : file.listFiles()) {
+                deleteRecursively(child);
+            }
+        }
+        file.delete();
+    }
+
+
 
 
 
@@ -651,6 +698,7 @@ public class FileService {
         try {
             response = restTemplate.postForEntity(n8nWebhookUrlChatJwt, request, String.class);
             System.out.println("Raw response: " + response.getBody());
+            System.out.println(" response: " + response);
         } catch (ResourceAccessException ex) {
             Map<String, Object> error = new HashMap<>();
             error.put("error", "Network error: " + ex.getMessage());
@@ -668,10 +716,48 @@ public class FileService {
             }
             return ResponseEntity.status(response.getStatusCode()).body(error);
         }
-
-// success
         Map<String, Object> out = new HashMap<>();
+        if(response.getBody() == null){
+            out.put("error", "something went wrong");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(out);
+        }
+// success
+
         out.put("answer", response.getBody());
         return ResponseEntity.ok(out);
     }
+
+
+    public ResponseEntity<Map<String, Object>> sendPromptToN8nJwt(String prompt, String authHeader) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("prompt", prompt);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", authHeader); // token client ne bheja
+        System.out.println("Authorization "+ authHeader);
+        HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+        ResponseEntity<String> response;
+        try {
+            response = restTemplate.postForEntity(n8nWebhookUrlChatJwt, request, String.class);
+            System.out.println("response "+ response);
+        } catch (ResourceAccessException ex) {
+            return ResponseEntity.status(HttpStatus.GATEWAY_TIMEOUT)
+                    .body(Map.of("error", "Network error: " + ex.getMessage()));
+        }
+
+        if (response.getStatusCodeValue() != 200) {
+            return ResponseEntity.status(response.getStatusCode())
+                    .body(Map.of("error", response.getBody()));
+        }
+
+        Map<String, Object> out = new HashMap<>();
+        if(response.getBody() == null){
+            out.put("error", "something went wrong");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(out);
+        }
+        return ResponseEntity.ok(Map.of("answer", response.getBody()));
+    }
+
 }
