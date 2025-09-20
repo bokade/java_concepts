@@ -1,9 +1,7 @@
 package com.example.javaIO.controller;
 
 
-import com.example.javaIO.model.FileInfo;
-import com.example.javaIO.model.FilePathRequest;
-import com.example.javaIO.model.PromptRequest;
+import com.example.javaIO.model.*;
 import com.example.javaIO.service.FileService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
