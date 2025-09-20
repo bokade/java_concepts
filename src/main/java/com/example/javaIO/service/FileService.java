@@ -36,7 +36,8 @@ public class FileService {
     private static final String N8N_WEBHOOK_URL = "https://n8n.planbow.com/webhook-test/send-email";
     private static final String FILEss_PATH = "sample.txt";
     private final String BASE_PATH = "D:/file-storage"; // yahan sab files banenge
-
+    private final String FILE_PATH_RANDOM = "D:/Practical_Java/JavaConcepts/sample.txt"; // update path
+//    D:\Practical_Java\JavaConcepts\sample.txt
     @Value("${n8n.webhook.url}")
     private String n8nWebhookUrl;
 
@@ -450,6 +451,34 @@ public class FileService {
 
 
 
+
+    // Update 5th character
+    public String updateFifthCharacter(char newChar) throws Exception {
+        try (RandomAccessFile raf = new RandomAccessFile(FILE_PATH_RANDOM, "rw")) {
+            if (raf.length() < 5) {
+                return "File is too short!";
+            }
+            raf.seek(4); // move to 5th character (index 4)
+            raf.writeByte(newChar);
+            return "5th character updated successfully to '" + newChar + "'";
+        }
+    }
+
+    // Read last 10 bytes
+    public String readLast10Bytes() throws Exception {
+        try (RandomAccessFile raf = new RandomAccessFile(FILE_PATH_RANDOM, "r")) {
+            long length = raf.length();
+            if (length < 10) {
+                raf.seek(0); // file smaller than 10 bytes → read full
+            } else {
+                raf.seek(length - 10); // move pointer to last 10 bytes
+            }
+
+            byte[] buffer = new byte[(int) (raf.length() < 10 ? raf.length() : 10)];
+            raf.readFully(buffer);
+            return new String(buffer, StandardCharsets.UTF_8);
+        }
+    }
 
 
 
