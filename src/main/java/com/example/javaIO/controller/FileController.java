@@ -198,6 +198,28 @@ public class FileController {
         return fileService.deleteDirectory(dirName);
     }
 
+
+    // Update 5th character → PUT request
+    @PutMapping("/update-char")
+    public String updateChar(@RequestParam char newChar) {
+        try {
+            return fileService.updateFifthCharacter(newChar);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    // Read last 10 bytes → GET request
+    @GetMapping("/read-last-bytes")
+    public String readLastBytes() {
+        try {
+            return fileService.readLast10Bytes();
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
         String subject = req.get("subject");
@@ -278,5 +300,6 @@ public class FileController {
         String prompt = body.get("prompt");
         return fileService.sendPromptToN8nJwt(prompt, authHeader);
     }
+
 
 }
