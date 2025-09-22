@@ -1,5 +1,6 @@
 package com.example.javaIO.service;
 import com.example.javaIO.model.FileInfo;
+import com.example.javaIO.model.FileInfos;
 import com.example.javaIO.model.Submission;
 import com.example.javaIO.repository.SubmissionRepository;
 import io.jsonwebtoken.Jwts;
@@ -477,6 +478,50 @@ public class FileService {
     }
 
 
+    // Traverse directory recursively
+    public List<FileInfos> listFiles(String dirPath) {
+        List<FileInfos> fileList = new ArrayList<>();
+        File dir = new File(dirPath);
+
+        if (!dir.exists() || !dir.isDirectory()) {
+            return fileList;
+        }
+
+        traverseDirectory(dir, fileList);
+        return fileList;
+    }
+
+    private void traverseDirectory(File dir, List<FileInfos> fileList) {
+        for (File file : dir.listFiles()) {
+            String type = file.isDirectory() ? "Directory" : "File";
+            long size = file.isDirectory() ? 0 : file.length();
+            fileList.add(new FileInfos(file.getName(), type, size, file.getAbsolutePath()));
+
+            if (file.isDirectory()) {
+                traverseDirectory(file, fileList);
+            }
+        }
+    }
+
+    // Create file
+    public String createFiles(String path) throws IOException {
+        File file = new File(path);
+        if (file.exists()) {
+            return "File already exists: " + path;
+        }
+        boolean created = file.createNewFile();
+        return created ? "File created: " + path : "Failed to create file";
+    }
+
+    // Delete file
+    public String deleteFiles(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return "File not found: " + path;
+        }
+        boolean deleted = file.delete();
+        return deleted ? "File deleted: " + path : "Failed to delete file";
+    }
 
 
 
