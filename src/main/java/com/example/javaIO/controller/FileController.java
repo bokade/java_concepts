@@ -219,6 +219,26 @@ public class FileController {
     }
 
 
+
+    // GET - list files in directory
+    @GetMapping("/lists")
+    public List<FileInfos> listFiless(@RequestParam String path) {
+        return fileService.listFiles(path);
+    }
+
+    // POST - create new file
+    @PostMapping("/creates")
+    public String createFiles(@RequestParam String path) throws IOException {
+        return fileService.createFiles(path);
+    }
+
+    // DELETE - delete file
+    @DeleteMapping("/deletes")
+    public String deleteFile(@RequestParam String path) {
+        return fileService.deleteFiles(path);
+    }
+
+
     @PostMapping("/sendEmails")
     public ResponseEntity<String> receive(@RequestBody Map<String, String> req) {
         String subject = req.get("subject");
