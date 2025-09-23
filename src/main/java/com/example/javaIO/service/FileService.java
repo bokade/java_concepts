@@ -1,11 +1,12 @@
 package com.example.javaIO.service;
-import com.example.javaIO.model.FileInfo;
-import com.example.javaIO.model.FileInfos;
-import com.example.javaIO.model.Submission;
+import com.example.javaIO.model.*;
+import com.example.javaIO.repository.JwtSecretRepository;
 import com.example.javaIO.repository.SubmissionRepository;
+import com.example.javaIO.repository.UserRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,14 @@ import java.util.stream.Stream;
 
 @Service
 public class FileService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private JwtSecretRepository secretRepository;
+
+
     private final SubmissionRepository repo;
     private final RestTemplate restTemplate;
 
@@ -830,4 +839,30 @@ public class FileService {
         return ResponseEntity.ok(Map.of("answer", response.getBody()));
     }
 
+
+    public String login(String username, String password) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        JwtSecretEntity secretEntity = secretRepository.findById("default")
+                .orElseThrow(() -> new RuntimeException("Secret not found"));
+
+        byte[] keyBytes = secretEntity.getSecret().getBytes(StandardCharsets.UTF_8);
+        SecretKey key = Keys.hmacShaKeyFor(keyBytes);
+
+        Instant now = Instant.now();
+
+        return Jwts.builder()
+                .setIssuer(secretEntity.getIssuer())
+                .setSubject(user.getUsername())
+                .claim("role", user.getRole())   // 👈 DB se role aa gaya
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(now.plusSeconds(300)))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
 }

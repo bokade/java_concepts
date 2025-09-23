@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.SecretKey;
@@ -313,6 +314,8 @@ public class FileController {
         return ResponseEntity.ok(Map.of("token", token));
     }
 
+
+    //@PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/chat-secure-jwt-with-header-token")
     public ResponseEntity<Map<String, Object>> chatSecure(@RequestBody Map<String, String> body,
                                                           @RequestHeader("Authorization") String authHeader) {
@@ -320,5 +323,16 @@ public class FileController {
         return fileService.sendPromptToN8nJwt(prompt, authHeader);
     }
 
+
+    @PostMapping("/login-n8n")
+    public ResponseEntity<?> loginN8n(@RequestBody Map<String, String> body) {
+        try {
+            String token = fileService.login(body.get("username"), body.get("password"));
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
 
 }
