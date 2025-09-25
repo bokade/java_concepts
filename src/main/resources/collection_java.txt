@@ -1,0 +1,359 @@
+1️⃣ What it does : Arrays.asList(...)
+List<String> list = Arrays.asList("Apple", "Grapes");
+
+
+Arrays.asList(...) → Java ka utility method jo array ya elements ko List me convert karta hai.
+
+Yahan "Apple" aur "Grapes" ko fixed-size List me convert kar diya.
+
+Result type → List<String>
+
+2️⃣ Important points
+
+Fixed-size list:
+
+List ka size change nahi kar sakte (add/remove operations will throw UnsupportedOperationException)
+
+list.add("Orange"); // ❌ Exception
+list.remove(0);     // ❌ Exception
+
+
+Mutable elements:
+
+List ke elements ko modify kar sakte ho
+
+list.set(0, "Mango"); // ✅ Works
+
+
+Quick initialization:
+
+Ye shortcut hai jab tumhe sirf few elements ke sath List banana hai
+
+Older way:
+
+List<String> list = new ArrayList<>();
+list.add("Apple");
+list.add("Grapes");
+
+3️⃣ If you want resizable List
+List<String> list = new ArrayList<>(Arrays.asList("Apple", "Grapes"));
+list.add("Orange"); // ✅ Works now
+
+
+new ArrayList<>(Arrays.asList(...)) → creates normal ArrayList from fixed-size list.
+
+💡 Summary:
+
+Arrays.asList("Apple", "Grapes") → fixed-size list with two elements
+
+Can modify elements, but cannot change size
+
+For resizable list → wrap in new ArrayList<>()
+
+-------------------------------------------------------------------------------------------------------------------------
+1️⃣ add() method
+
+Purpose: List ya Collection me naya element add karna
+
+Syntax:
+
+boolean add(E e)
+
+
+Behavior:
+
+Element ko list ke end me add karta hai (ya specific index pe add karne ka overloaded version bhi hai: add(int index, E element))
+
+Size of list increases
+
+Returns true if successfully added
+
+Example:
+
+List<String> fruits = new ArrayList<>();
+fruits.add("Apple");
+fruits.add("Grapes");
+System.out.println(fruits); // [Apple, Grapes]
+fruits.add(1, "Orange");    // add at index 1
+System.out.println(fruits); // [Apple, Orange, Grapes]
+
+
+✅ Key points:
+
+Adds new element
+
+List size changes
+
+2️⃣ set() method
+
+Purpose: List me existing element replace karna
+
+Syntax:
+
+E set(int index, E element)
+
+
+Behavior:
+
+Replaces the element at given index with new element
+
+List size remains same
+
+Returns old element that was replaced
+
+Example:
+
+List<String> fruits = new ArrayList<>();
+fruits.add("Apple");
+fruits.add("Grapes");
+fruits.set(1, "Orange");  // replace "Grapes" with "Orange"
+System.out.println(fruits); // [Apple, Orange]
+
+
+✅ Key points:
+
+Does not change list size
+
+Only updates existing element at index
+-------------------------------------------------------------------------------------------------------------------------
+
+1️⃣ What is toArray()
+
+Purpose:
+toArray() method converts a Collection (like ArrayList) into an array.
+
+Syntax (common):
+
+Object[] toArray()
+<T> T[] toArray(T[] a)
+
+2️⃣ Behavior of toArray()
+a) Object[] toArray()
+
+Returns a new array of type Object[]
+
+Array size = list size
+
+Elements are copied in order from list to array
+
+Example in your code:
+
+ArrayList<Integer> numbers = new ArrayList<>(Arrays.asList(50, 20, 40, 10, 30));
+Object[] arr = numbers.toArray();
+System.out.println("Array: " + Arrays.toString(arr));
+
+
+Output:
+
+Array: [50, 20, 40, 10, 30]
+
+
+Notes:
+
+Array type is Object[], not Integer[] → may need casting if you want specific type
+
+Useful for legacy APIs that require arrays
+
+b) <T> T[] toArray(T[] a)
+
+Lets you create array of specific type, e.g., Integer[]
+
+Integer[] arr2 = numbers.toArray(new Integer[0]);
+
+
+How it works:
+
+If the provided array is large enough, list elements are copied into it
+
+If too small, new array of proper size is created
+
+✅ This is type-safe → avoids casting
+
+3️⃣ Key points
+Feature	toArray()	toArray(T[] a)
+Return type	Object[]	T[]
+Type safety	❌ (needs casting)	✅ type-safe
+Array size	Exactly list size	List size (new array if needed)
+Use-case	Simple conversion	When array type required
+
+💡 Summary:
+
+toArray() → convert ArrayList to Object[]
+
+toArray(T[] a) → convert to specific array type
+
+Elements are copied in order
+
+Useful for integration with APIs that expect arrays
+
+2️⃣ Can you use toArray() for each?
+Data Structure	Can use toArray()?	Notes
+ArrayList	✅ Yes	Returns array of elements in order
+LinkedList	✅ Yes	Works same as ArrayList
+HashSet	✅ Yes	Returns array, order not guaranteed
+TreeSet	✅ Yes	Returns array in sorted order
+PriorityQueue	✅ Yes	Returns array, no guaranteed order
+Map	❌ Directly no	Use map.keySet().toArray() or map.values().toArray()
+-------------------------------------------------------------------------------------------------------------------------
+1️⃣ What is sort()
+
+sort() method sorts a List in-place according to a Comparator
+
+Signature:
+
+default void sort(Comparator<? super E> c)
+
+
+In-place: Original list ka order change ho jata hai, new list create nahi hoti
+
+2️⃣ Usage in your code
+numbers.sort(Comparator.naturalOrder());
+System.out.println("After sort ascending: " + numbers);
+
+
+Comparator.naturalOrder() → ascending order (smallest → largest)
+
+Original list: [50, 20, 40, 10, 30]
+
+After sort ascending: [10, 20, 30, 40, 50]
+
+numbers.sort(Comparator.reverseOrder());
+System.out.println("After sort descending: " + numbers);
+
+
+Comparator.reverseOrder() → descending order (largest → smallest)
+
+After sort descending: [50, 40, 30, 20, 10]
+
+3️⃣ Key points
+
+Works only on List interface (ArrayList, LinkedList, etc.)
+
+Comparator defines the sorting logic:
+
+naturalOrder() → ascending
+
+reverseOrder() → descending
+
+Custom comparator → user-defined order
+
+numbers.sort((a, b) -> b % 10 - a % 10); // sort by last digit
+
+
+In-place sorting → original list gets modified
+
+For Set or Queue, sort directly not available, need convert to List first
+4️⃣ Custom comparator example
+List<String> names = Arrays.asList("Swapnil", "Ankit", "Rahul");
+names.sort((a,b) -> a.length() - b.length()); // sort by string length
+System.out.println(names); // [Ankit, Rahul, Swapnil]
+
+
+✅ Summary Table
+
+Method	Purpose	Example
+sort(Comparator.naturalOrder())	Ascending sort	10,20,30
+sort(Comparator.reverseOrder())	Descending sort	30,20,10
+sort(customComparator)	Custom sorting logic	By length, by last digit
+-------------------------------------------------------------------------------------------------------------------------
+1️⃣ Iterator
+
+Purpose:
+
+Iterator is used to traverse a Collection element by element.
+
+Works for all Collections: List, Set, Queue, etc.
+
+Key Methods:
+
+boolean hasNext()   // checks if more elements
+E next()           // returns next element
+void remove()      // optional, removes last returned element
+
+
+Example in your code:
+
+Iterator<String> it = animals.iterator();
+while(it.hasNext()) {
+    System.out.println("Iterator: " + it.next());
+}
+
+
+Behavior:
+
+Traverses only forward
+
+Can remove elements safely while iterating
+
+Works with any Collection (List, Set, etc.)
+
+2️⃣ ListIterator
+
+Purpose:
+
+ListIterator is a special iterator for Lists
+
+Can traverse both forward and backward
+
+Key Methods:
+
+boolean hasNext()      // forward check
+E next()              // forward traversal
+boolean hasPrevious()  // backward check
+E previous()          // backward traversal
+void add(E e)         // add element at current position
+void set(E e)         // replace last returned element
+
+
+Example in your code:
+
+ListIterator<String> lit = animals.listIterator();
+while(lit.hasNext()) {
+    System.out.println("Forward: " + lit.next());
+}
+while(lit.hasPrevious()) {
+    System.out.println("Backward: " + lit.previous());
+}
+
+
+Behavior:
+
+First loop → traverse forward
+
+Second loop → traverse backward
+
+Can add, remove, or replace elements while traversing
+
+Works only for List (ArrayList, LinkedList, etc.), not for Set or Queue
+
+3️⃣ Quick comparison table
+Feature	Iterator	ListIterator
+Traversal direction	Forward only	Forward & Backward
+Modify element	❌ only remove	✅ add, set, remove
+Applicable on	Any Collection (List, Set, Queue)	Only List (ArrayList, LinkedList)
+Methods	hasNext(), next(), remove()	hasNext(), next(), hasPrevious(), previous(), add(), set(), remove()
+4️⃣ Notes
+
+Iterator remove():
+
+it.remove(); // removes last element returned by next()
+
+
+ListIterator add() & set():
+
+lit.add("Lion");  // add at current cursor position
+lit.set("Tiger"); // replace last returned element
+
+
+Why use ListIterator?
+
+When you need bidirectional traversal or modify list while iterating safely
+
+💡 Rule of thumb:
+
+Iterator → simple forward iteration, works on any collection
+
+ListIterator → advanced iteration for Lists, forward + backward + modification
+-------------------------------------------------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------------------------------------------------

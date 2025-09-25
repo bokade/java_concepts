@@ -335,4 +335,23 @@ public class FileController {
         }
     }
 
+    @PostMapping("/write-data")
+    public String writeData(@RequestBody NumberArraysDTO dto) {
+        try {
+            fileService.writeData(dto);
+            return "Data written successfully!";
+        } catch (IOException e) {
+            return "Error writing data: " + e.getMessage();
+        }
+    }
+
+    @GetMapping("/read-data")
+    public NumberArraysDTO readData() {
+        try {
+            return fileService.readData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

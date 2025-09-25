@@ -43,7 +43,7 @@ public class FileService {
     private static final String FILEss_PATH = "sample.txt";
     private final String BASE_PATH = "D:/file-storage"; // yahan sab files banenge
     private final String FILE_PATH_RANDOM = "D:/Practical_Java/JavaConcepts/sample.txt"; // update path
-
+    private final String FILE_PATH_DATA = "numbers.bin";
 
     //    D:\Practical_Java\JavaConcepts\sample.txt
     @Value("${n8n.webhook.url}")
@@ -866,5 +866,28 @@ public class FileService {
                 .setExpiration(Date.from(now.plusSeconds(300)))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+
+
+
+    public void writeData(NumberArraysDTO dto) throws IOException {
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(FILE_PATH_DATA))) {
+            for (int i : dto.getIntArray()) dos.writeInt(i);
+            for (double d : dto.getDoubleArray()) dos.writeDouble(d);
+        }
+    }
+
+    public NumberArraysDTO readData() throws IOException {
+        NumberArraysDTO dto = new NumberArraysDTO();
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(FILE_PATH_DATA))) {
+            int[] intArray = new int[3]; // Adjust size accordingly
+            double[] doubleArray = new double[3];
+            for (int i = 0; i < intArray.length; i++) intArray[i] = dis.readInt();
+            for (int i = 0; i < doubleArray.length; i++) doubleArray[i] = dis.readDouble();
+            dto.setIntArray(intArray);
+            dto.setDoubleArray(doubleArray);
+        }
+        return dto;
     }
 }
