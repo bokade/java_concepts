@@ -3,9 +3,11 @@ package com.example.javaIO.controller;
 
 import com.example.javaIO.model.*;
 import com.example.javaIO.service.FileService;
+import com.example.javaIO.service.StudentService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,10 @@ public class FileController {
     public FileController(FileService fileService) {
         this.fileService = fileService;
     }
+
+    @Autowired
+    private StudentService studentService;
+
 
 
     // ✅ Write endpoint
@@ -354,4 +360,25 @@ public class FileController {
             return null;
         }
     }
+
+
+    // ➕ Add Student
+    @PostMapping("/add-student")
+    public Student addStudent(@RequestBody Student student) {
+        return studentService.addStudent(student);
+    }
+
+    // 📃 Get all students
+    @GetMapping("/get-students")
+    public List<Student> getAllStudents() {
+        return studentService.getAllStudents();
+    }
+
+    // 🔍 Search by ID
+    @GetMapping("/get-student-by-id/{id}")
+    public Student getStudentById(@PathVariable int id) {
+        return studentService.getStudentById(id);
+    }
+
+
 }
