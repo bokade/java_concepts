@@ -890,4 +890,46 @@ public class FileService {
         }
         return dto;
     }
+
+
+    public String startPipe() throws Exception {
+        // Create piped streams
+        PipedInputStream pis = new PipedInputStream();
+        PipedOutputStream pos = new PipedOutputStream(pis);
+
+        // Producer thread (file se read karega)
+        Thread producer = new Thread(() -> {
+            try (BufferedReader br = new BufferedReader(new FileReader("sample.txt"))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    pos.write(line.getBytes());
+                    pos.write("\n".getBytes());
+                }
+                pos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Consumer thread (console pe print karega)
+        Thread consumer = new Thread(() -> {
+            try {
+                int data;
+                while ((data = pis.read()) != -1) {
+                    System.out.print((char) data);
+                }
+                pis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+        producer.start();
+        consumer.start();
+
+        producer.join();
+        consumer.join();
+
+        return "Piped stream communication started! Check console logs.";
+    }
 }

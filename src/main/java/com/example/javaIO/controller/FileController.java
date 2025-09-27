@@ -380,5 +380,10 @@ public class FileController {
         return studentService.getStudentById(id);
     }
 
+    @GetMapping("/start")
+    public String startPipe() throws Exception {
+        return fileService.startPipe();
+    }
+
 
 }
