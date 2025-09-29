@@ -386,4 +386,38 @@ public class FileController {
     }
 
 
+    // ✅ Compress folder
+    @PostMapping("/compress")
+    public String compress(@RequestParam String sourceFolder,
+                           @RequestParam String zipFilePath) {
+        try {
+            return fileService.compress(sourceFolder, zipFilePath);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    // ✅ Extract zip
+    @PostMapping("/extract")
+    public String extract(@RequestParam String zipFilePath,
+                          @RequestParam String destFolder) {
+        try {
+            return fileService.extract(zipFilePath, destFolder);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+    // ✅ Auto-backup
+    @PostMapping("/backup")
+    public String backup(@RequestParam String sourceFolder,
+                         @RequestParam String backupDir) {
+        try {
+            return fileService.backup(sourceFolder, backupDir);
+        } catch (Exception e) {
+            return "Error: " + e.getMessage();
+        }
+    }
+
+
 }
