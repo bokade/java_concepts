@@ -3,6 +3,7 @@ import com.example.javaIO.model.*;
 import com.example.javaIO.repository.JwtSecretRepository;
 import com.example.javaIO.repository.SubmissionRepository;
 import com.example.javaIO.repository.UserRepository;
+import com.example.utils.ZipUtils;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -931,5 +932,24 @@ public class FileService {
         consumer.join();
 
         return "Piped stream communication started! Check console logs.";
+    }
+
+
+    // Compress folder
+    public String compress(String sourceFolder, String zipFilePath) throws Exception {
+        ZipUtils.compressFolder(sourceFolder, zipFilePath);
+        return "Compressed successfully: " + zipFilePath;
+    }
+
+    // Extract zip
+    public String extract(String zipFilePath, String destFolder) throws Exception {
+        ZipUtils.extractZip(zipFilePath, destFolder);
+        return "Extracted successfully to: " + destFolder;
+    }
+
+    // Auto-backup
+    public String backup(String sourceFolder, String backupDir) throws Exception {
+        String backupFile = ZipUtils.autoBackup(sourceFolder, backupDir);
+        return "Backup created: " + backupFile;
     }
 }
