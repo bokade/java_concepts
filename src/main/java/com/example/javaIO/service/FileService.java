@@ -28,15 +28,25 @@ import java.util.stream.Stream;
 @Service
 public class FileService {
 
+    public FileService() throws IOException {
+        if (!Files.exists(baseDir)) {
+            Files.createDirectory(baseDir);
+        }
+    }
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private JwtSecretRepository secretRepository;
 
+    @Autowired
+    private  SubmissionRepository repo;
 
-    private final SubmissionRepository repo;
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
+
+
 
     private static final String FILE_PATH = "hello_io.txt";
     private static final String FILES_PATH = "data.txt";
@@ -45,6 +55,8 @@ public class FileService {
     private final String BASE_PATH = "D:/file-storage"; // yahan sab files banenge
     private final String FILE_PATH_RANDOM = "D:/Practical_Java/JavaConcepts/sample.txt"; // update path
     private final String FILE_PATH_DATA = "numbers.bin";
+    private final Path baseDir = Paths.get("files"); // project ke andar "files" folder
+
 
     //    D:\Practical_Java\JavaConcepts\sample.txt
     @Value("${n8n.webhook.url}")
@@ -951,5 +963,42 @@ public class FileService {
     public String backup(String sourceFolder, String backupDir) throws Exception {
         String backupFile = ZipUtils.autoBackup(sourceFolder, backupDir);
         return "Backup created: " + backupFile;
+    }
+
+    public String createFileNio(String filename) throws IOException {
+        Path filePath = baseDir.resolve(filename);
+        if (Files.exists(filePath)) {
+            return "File already exists: " + filename;
+        }
+        Files.createFile(filePath);
+        return "File created: " + filename;
+    }
+
+    public List<String> readFileNio(String filename) throws IOException {
+        Path filePath = baseDir.resolve(filename);
+        if (!Files.exists(filePath)) {
+            throw new IOException("File not found: " + filename);
+        }
+        return Files.readAllLines(filePath);
+    }
+
+    public String copyFileNio(String source, String target) throws IOException {
+        Path sourcePath = baseDir.resolve(source);
+        Path targetPath = baseDir.resolve(target);
+        Files.copy(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        return "File copied from " + source + " to " + target;
+    }
+
+    public String moveFileNio(String source, String target) throws IOException {
+        Path sourcePath = baseDir.resolve(source);
+        Path targetPath = baseDir.resolve(target);
+        Files.move(sourcePath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        return "File moved from " + source + " to " + target;
+    }
+
+    public String deleteFileNio(String filename) throws IOException {
+        Path filePath = baseDir.resolve(filename);
+        Files.deleteIfExists(filePath);
+        return "File deleted: " + filename;
     }
 }
