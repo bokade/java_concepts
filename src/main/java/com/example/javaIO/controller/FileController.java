@@ -420,4 +420,29 @@ public class FileController {
     }
 
 
+
+    @PostMapping("/create-nio")
+    public ResponseEntity<String> createFileNio(@RequestParam String filename) throws IOException {
+        return ResponseEntity.ok(fileService.createFileNio(filename));
+    }
+
+    @GetMapping("/read-nio")
+    public ResponseEntity<List<String>> readFileNio(@RequestParam String filename) throws IOException {
+        return ResponseEntity.ok(fileService.readFileNio(filename));
+    }
+
+    @PostMapping("/copy-nio")
+    public ResponseEntity<String> copyFileNio(@RequestParam String source, @RequestParam String target) throws IOException {
+        return ResponseEntity.ok(fileService.copyFileNio(source, target));
+    }
+
+    @PostMapping("/move-nio")
+    public ResponseEntity<String> moveFileNio(@RequestParam String source, @RequestParam String target) throws IOException {
+        return ResponseEntity.ok(fileService.moveFileNio(source, target));
+    }
+
+    @DeleteMapping("/delete-nio")
+    public ResponseEntity<String> deleteFileNio(@RequestParam String filename) throws IOException {
+        return ResponseEntity.ok(fileService.deleteFileNio(filename));
+    }
 }
