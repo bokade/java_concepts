@@ -1,3 +1,4 @@
-Line 01: HELLO WORLD
-Line 02: THIS IS A TEST FILE
-Line 03: CHARACTER STREAMS IN JAVA
+Hello
+This is a test file
+Buffered Streams in Java
+Spring Boot Demo
