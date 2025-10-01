@@ -16,6 +16,8 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.SecretKey;
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -1000,5 +1002,34 @@ public class FileService {
         Path filePath = baseDir.resolve(filename);
         Files.deleteIfExists(filePath);
         return "File deleted: " + filename;
+    }
+
+    public void copyFileUsingChannel(String sourcePath, String destPath) throws IOException {
+        try (FileChannel sourceChannel = new FileInputStream(sourcePath).getChannel();
+             FileChannel destChannel = new FileOutputStream(destPath).getChannel()) {
+
+            ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
+            while (sourceChannel.read(buffer) > 0) {
+                buffer.flip();
+                destChannel.write(buffer);
+                buffer.clear();
+            }
+        }
+    }
+
+    public List<Byte> readOnlyBufferDemo() {
+        ByteBuffer buffer = ByteBuffer.allocate(5);
+        for (int i = 0; i < buffer.capacity(); i++) {
+            buffer.put((byte) i);
+        }
+
+        ByteBuffer readOnly = buffer.asReadOnlyBuffer();
+        readOnly.flip();
+
+        List<Byte> result = new ArrayList<>();
+        while (readOnly.hasRemaining()) {
+            result.add(readOnly.get());
+        }
+        return result;
     }
 }

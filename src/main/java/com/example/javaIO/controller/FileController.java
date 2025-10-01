@@ -445,4 +445,21 @@ public class FileController {
     public ResponseEntity<String> deleteFileNio(@RequestParam String filename) throws IOException {
         return ResponseEntity.ok(fileService.deleteFileNio(filename));
     }
+
+
+    @PostMapping("/copy-buffered-channel")
+    public ResponseEntity<String> copyFileChannel(@RequestParam("source") String source, @RequestParam("dest") String dest) {
+        try {
+            fileService.copyFileUsingChannel(source, dest);
+            return ResponseEntity.ok("File copied successfully!");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/readonly-buffer")
+    public ResponseEntity<List<Byte>> getReadOnlyBufferDemo() {
+        return ResponseEntity.ok(fileService.readOnlyBufferDemo());
+    }
 }
