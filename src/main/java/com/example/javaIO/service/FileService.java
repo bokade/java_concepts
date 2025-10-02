@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.crypto.SecretKey;
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
@@ -1031,5 +1032,22 @@ public class FileService {
             result.add(readOnly.get());
         }
         return result;
+    }
+
+
+    public String readLargeFile(String filePath) throws IOException {
+        File file = new File(filePath);
+        try (FileChannel fileChannel = new FileInputStream(file).getChannel()) {
+            long fileSize = file.length();
+
+            // Memory Mapped File
+            MappedByteBuffer buffer = fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileSize);
+
+            // Convert buffer into string
+            byte[] bytes = new byte[(int) fileSize];
+            buffer.get(bytes);
+
+            return new String(bytes, StandardCharsets.UTF_8);
+        }
     }
 }
