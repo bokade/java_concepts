@@ -462,4 +462,9 @@ public class FileController {
     public ResponseEntity<List<Byte>> getReadOnlyBufferDemo() {
         return ResponseEntity.ok(fileService.readOnlyBufferDemo());
     }
+
+    @GetMapping("/read-file-nioo")
+    public String readFileNioAdv(@RequestParam String path) throws Exception {
+        return fileService.readLargeFile(path);
+    }
 }
