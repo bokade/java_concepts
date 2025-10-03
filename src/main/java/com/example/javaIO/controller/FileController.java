@@ -467,4 +467,22 @@ public class FileController {
     public String readFileNioAdv(@RequestParam String path) throws Exception {
         return fileService.readLargeFile(path);
     }
+
+
+    // 1. Log Analyzer
+    @GetMapping("/analyze-log")
+    public List<String> analyzeLog(
+            @RequestParam String filePath,
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "10") int limit
+    ) throws IOException {
+        return fileService.searchKeyword(filePath, keyword, limit);
+    }
+
+    // 2. Directory Watcher
+    @PostMapping("/watch-dir")
+    public String watchDirectory(@RequestParam String dirPath) throws IOException {
+        fileService.watchDirectory(dirPath);
+        return "Started watching directory: " + dirPath;
+    }
 }

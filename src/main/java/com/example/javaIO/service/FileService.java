@@ -1050,4 +1050,66 @@ public class FileService {
             return new String(bytes, StandardCharsets.UTF_8);
         }
     }
+
+    public List<String> searchKeyword(String filePath, String keyword, int limit) throws IOException {
+        List<String> results = new ArrayList<>();
+
+        Path path = Paths.get(filePath);
+        try (FileChannel fileChannel = FileChannel.open(path, StandardOpenOption.READ)) {
+            ByteBuffer buffer = ByteBuffer.allocate(1024 * 8); // 8KB buffer
+            StringBuilder sb = new StringBuilder();
+            int bytesRead;
+
+            while ((bytesRead = fileChannel.read(buffer)) != -1) {
+                buffer.flip();
+                while (buffer.hasRemaining()) {
+                    char c = (char) buffer.get();
+                    sb.append(c);
+                    if (c == '\n') {
+                        String line = sb.toString();
+                        if (line.contains(keyword)) {
+                            results.add(line.trim());
+                            if (results.size() >= limit) {
+                                return results; // Stop after limit
+                            }
+                        }
+                        sb.setLength(0);
+                    }
+                }
+                buffer.clear();
+            }
+        }
+        return results;
+    }
+
+
+    public void watchDirectory(String dirPath) throws IOException {
+        Path path = Paths.get(dirPath);
+        WatchService watchService = FileSystems.getDefault().newWatchService();
+
+        path.register(
+                watchService,
+                StandardWatchEventKinds.ENTRY_CREATE,
+                StandardWatchEventKinds.ENTRY_DELETE,
+                StandardWatchEventKinds.ENTRY_MODIFY
+        );
+
+        // Run in background thread
+        Thread thread = new Thread(() -> {
+            try {
+                while (true) {
+                    WatchKey key = watchService.take(); // blocking call
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        System.out.println("Event: " + event.kind() +
+                                " -> " + event.context());
+                    }
+                    key.reset();
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
 }
