@@ -485,4 +485,19 @@ public class FileController {
         fileService.watchDirectory(dirPath);
         return "Started watching directory: " + dirPath;
     }
+
+
+    // File Copy Endpoint
+    @PostMapping("/copy-nio-secure")
+    public String copyFileSecure(@RequestParam String source, @RequestParam String destination) {
+        return fileService.copyFileSecurely(source, destination);
+    }
+
+    // Encoding Comparison Endpoint
+    @GetMapping("/compare-encoding-nio-secure")
+    public String compareEncoding(@RequestParam String filePath) {
+        return fileService.compareEncoding(filePath);
+    }
+
+
 }
