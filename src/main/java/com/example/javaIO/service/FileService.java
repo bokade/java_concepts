@@ -1112,4 +1112,49 @@ public class FileService {
         thread.setDaemon(true);
         thread.start();
     }
+
+
+    // ✅ Safe File Copy using try-with-resources
+    public String copyFileSecurely(String sourcePath, String destPath) {
+        Path source = Paths.get(sourcePath);
+        Path destination = Paths.get(destPath);
+
+        try (InputStream in = Files.newInputStream(source);
+             OutputStream out = Files.newOutputStream(destination, StandardOpenOption.CREATE)) {
+
+            byte[] buffer = new byte[8192]; // 8KB buffer
+            int bytesRead;
+
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+
+            return "File copied successfully from " + source + " to " + destination;
+
+        } catch (IOException e) {
+            return "Error copying file: " + e.getMessage();
+        }
+    }
+
+    // ✅ Encoding Comparison (UTF-8 vs ISO-8859-1)
+    public String compareEncoding(String filePath) {
+        Path path = Paths.get(filePath);
+        StringBuilder result = new StringBuilder();
+
+        try {
+            // Read as UTF-8
+            String utf8Content = Files.readString(path, StandardCharsets.UTF_8);
+
+            // Read as ISO-8859-1
+            String isoContent = Files.readString(path, StandardCharsets.ISO_8859_1);
+
+            result.append("UTF-8 Content: ").append(utf8Content).append("\n\n");
+            result.append("ISO-8859-1 Content: ").append(isoContent);
+
+        } catch (IOException e) {
+            return "Error reading file: " + e.getMessage();
+        }
+
+        return result.toString();
+    }
 }
