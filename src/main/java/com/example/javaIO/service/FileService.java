@@ -27,6 +27,8 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class FileService {
@@ -1156,5 +1158,107 @@ public class FileService {
         }
 
         return result.toString();
+    }
+
+
+    // 1️⃣ File Copy using try-with-resources
+    public String copyFileInterview(String source, String destination) {
+        try (InputStream in = Files.newInputStream(Paths.get(source));
+             OutputStream out = Files.newOutputStream(Paths.get(destination), StandardOpenOption.CREATE)) {
+
+            byte[] buffer = new byte[8192];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+            return "✅ File copied successfully.";
+
+        } catch (IOException e) {
+            return "❌ Error copying file: " + e.getMessage();
+        }
+    }
+
+    // 2️⃣ Word Count Program
+    public String wordCountInterview(String filePath) {
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(filePath))) {
+            int lines = 0, words = 0, chars = 0;
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines++;
+                words += line.split("\\s+").length;
+                chars += line.length();
+            }
+            return String.format("Lines: %d, Words: %d, Characters: %d", lines, words, chars);
+        } catch (IOException e) {
+            return "❌ Error: " + e.getMessage();
+        }
+    }
+
+    // 3️⃣ Object Serialization Example
+    public String serializeObjectInterview(String filePath) {
+        Employee emp = new Employee(1, "Swapnil", "Java Developer", "secret123");
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
+            oos.writeObject(emp);
+            return "✅ Employee serialized successfully to: " + filePath;
+        } catch (IOException e) {
+            return "❌ Serialization error: " + e.getMessage();
+        }
+    }
+
+    // 4️⃣ File Compression (ZIP)
+    public String compressFileInterview(String source, String zipFile) {
+        try (FileOutputStream fos = new FileOutputStream(zipFile);
+             ZipOutputStream zos = new ZipOutputStream(fos);
+             FileInputStream fis = new FileInputStream(source)) {
+
+            ZipEntry entry = new ZipEntry(Paths.get(source).getFileName().toString());
+            zos.putNextEntry(entry);
+
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = fis.read(buffer)) > 0) {
+                zos.write(buffer, 0, len);
+            }
+
+            zos.closeEntry();
+            return "✅ File compressed to: " + zipFile;
+
+        } catch (IOException e) {
+            return "❌ Compression failed: " + e.getMessage();
+        }
+    }
+
+    // 5️⃣ Log Parser - Search keyword in large log file
+    public String parseLogInterview(String filePath, String keyword) {
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader br = Files.newBufferedReader(Paths.get(filePath))) {
+            String line;
+            int count = 0;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(keyword)) {
+                    count++;
+                    result.append(line).append("\n");
+                }
+            }
+            return "✅ Found " + count + " occurrences:\n" + result;
+        } catch (IOException e) {
+            return "❌ Error parsing log: " + e.getMessage();
+        }
+    }
+
+    // Inner Serializable class for demo
+    private static class Employee implements Serializable {
+        private static final long serialVersionUID = 1L;
+        private int id;
+        private String name;
+        private String role;
+        private transient String password;
+
+        public Employee(int id, String name, String role, String password) {
+            this.id = id;
+            this.name = name;
+            this.role = role;
+            this.password = password;
+        }
     }
 }
