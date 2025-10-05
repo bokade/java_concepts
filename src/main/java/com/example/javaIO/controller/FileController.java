@@ -500,4 +500,37 @@ public class FileController {
     }
 
 
+
+
+    // for java io interview purpose
+
+    // 1️⃣ File Copy
+    @PostMapping("/copy-interview")
+    public String copyFileInterview(@RequestParam String source, @RequestParam String destination) {
+        return fileService.copyFileInterview(source, destination);
+    }
+
+    // 2️⃣ Word Count
+    @GetMapping("/word-count-interview")
+    public String wordCountInterview(@RequestParam String filePath) {
+        return fileService.wordCountInterview(filePath);
+    }
+
+    // 3️⃣ Serialization
+    @PostMapping("/serialize-interview")
+    public String serializeObjectInterview(@RequestParam String filePath) {
+        return fileService.serializeObjectInterview(filePath);
+    }
+
+    // 4️⃣ Compression
+    @PostMapping("/compress-interview")
+    public String compressFileInterview(@RequestParam String source, @RequestParam String zipFile) {
+        return fileService.compressFileInterview(source, zipFile);
+    }
+
+    // 5️⃣ Log Parser
+    @GetMapping("/parse-log-interview")
+    public String parseLogInterview(@RequestParam String filePath, @RequestParam String keyword) {
+        return fileService.parseLogInterview(filePath, keyword);
+    }
 }
