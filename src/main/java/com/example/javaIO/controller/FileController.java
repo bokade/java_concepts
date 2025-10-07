@@ -533,4 +533,45 @@ public class FileController {
     public String parseLogInterview(@RequestParam String filePath, @RequestParam String keyword) {
         return fileService.parseLogInterview(filePath, keyword);
     }
+
+
+    @PostMapping("/copy-final")
+    public String copyFileFinal(@RequestParam String source, @RequestParam String destination) {
+        return fileService.copyFileFinal(source, destination);
+    }
+
+    @PostMapping("/move-final")
+    public String moveFile(@RequestParam String source, @RequestParam String destination) {
+        return fileService.moveFile(source, destination);
+    }
+
+    @GetMapping("/search-final")
+    public List<String> searchFiles(@RequestParam String dir, @RequestParam String keyword) {
+        return fileService.searchFiles(dir, keyword);
+    }
+
+    @PostMapping("/compress-final")
+    public String compressFinal(@RequestParam String source, @RequestParam String zipFile) {
+        return fileService.compressFile(source, zipFile);
+    }
+
+    @PostMapping("/decompress-final")
+    public String decompress(@RequestParam String zipFile, @RequestParam String destDir) {
+        return fileService.decompressFile(zipFile, destDir);
+    }
+
+    @PostMapping("/save-config-final")
+    public String saveConfig(@RequestBody Config config, @RequestParam String path) {
+        return fileService.saveConfig(config, path);
+    }
+
+    @GetMapping("/load-config-final")
+    public Config loadConfig(@RequestParam String path) {
+        return fileService.loadConfig(path);
+    }
+
+    @GetMapping("/watch-final")
+    public String watchDirFinal(@RequestParam String dirPath) {
+        return fileService.watchDirectoryFinal(dirPath);
+    }
 }
