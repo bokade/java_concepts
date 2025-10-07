@@ -28,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -1259,6 +1260,135 @@ public class FileService {
             this.name = name;
             this.role = role;
             this.password = password;
+        }
+    }
+
+
+    // ✅ 1. File Copy
+    public String copyFileFinal(String source, String destination) {
+        try {
+            Path copied = Files.copy(Paths.get(source), Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+            return "✅ File copied to: " + copied;
+        } catch (IOException e) {
+            return "❌ Copy failed: " + e.getMessage();
+        }
+    }
+
+    // ✅ 2. File Move
+    public String moveFile(String source, String destination) {
+        try {
+            Path moved = Files.move(Paths.get(source), Paths.get(destination), StandardCopyOption.REPLACE_EXISTING);
+            return "✅ File moved to: " + moved;
+        } catch (IOException e) {
+            return "❌ Move failed: " + e.getMessage();
+        }
+    }
+
+    // ✅ 3. File Search
+    public List<String> searchFiles(String dir, String keyword) {
+        List<String> found = new ArrayList<>();
+        try {
+            Files.walk(Paths.get(dir))
+                    .filter(p -> p.toFile().isFile())
+                    .filter(p -> p.getFileName().toString().contains(keyword))
+                    .forEach(p -> found.add(p.toString()));
+        } catch (IOException e) {
+            found.add("❌ Search failed: " + e.getMessage());
+        }
+        return found;
+    }
+
+    // ✅ 4. Compression
+    public String compressFile(String source, String zipFile) {
+        try (FileOutputStream fos = new FileOutputStream(zipFile);
+             ZipOutputStream zos = new ZipOutputStream(fos)) {
+
+            Path src = Paths.get(source);
+            if (Files.isDirectory(src)) {
+                Files.walk(src).filter(Files::isRegularFile).forEach(path -> {
+                    try {
+                        ZipEntry entry = new ZipEntry(src.relativize(path).toString());
+                        zos.putNextEntry(entry);
+                        Files.copy(path, zos);
+                        zos.closeEntry();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            } else {
+                ZipEntry entry = new ZipEntry(src.getFileName().toString());
+                zos.putNextEntry(entry);
+                Files.copy(src, zos);
+                zos.closeEntry();
+            }
+
+            return "✅ Compressed: " + zipFile;
+        } catch (IOException e) {
+            return "❌ Compression failed: " + e.getMessage();
+        }
+    }
+
+    // ✅ 5. Decompression
+    public String decompressFile(String zipFile, String destDir) {
+        try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile))) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                Path filePath = Paths.get(destDir, entry.getName());
+                Files.createDirectories(filePath.getParent());
+                Files.copy(zis, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
+            return "✅ Decompressed to: " + destDir;
+        } catch (IOException e) {
+            return "❌ Decompression failed: " + e.getMessage();
+        }
+    }
+
+    // ✅ 6. Save Config (Serialization)
+    public String saveConfig(Config config, String filePath) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))) {
+            oos.writeObject(config);
+            return "✅ Config saved at: " + filePath;
+        } catch (IOException e) {
+            return "❌ Save failed: " + e.getMessage();
+        }
+    }
+
+    // ✅ 7. Load Config
+    public Config loadConfig(String filePath) {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) {
+            return (Config) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // ✅ 8. Directory Watch
+    public String watchDirectoryFinal(String dirPath) {
+        try {
+            WatchService watchService = FileSystems.getDefault().newWatchService();
+            Path path = Paths.get(dirPath);
+            path.register(watchService, StandardWatchEventKinds.ENTRY_CREATE,
+                    StandardWatchEventKinds.ENTRY_DELETE,
+                    StandardWatchEventKinds.ENTRY_MODIFY);
+
+            new Thread(() -> {
+                try {
+                    WatchKey key;
+                    while ((key = watchService.take()) != null) {
+                        for (WatchEvent<?> event : key.pollEvents()) {
+                            System.out.println("🔔 Event: " + event.kind() + " - " + event.context());
+                        }
+                        key.reset();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }).start();
+
+            return "👀 Watching directory: " + dirPath;
+        } catch (IOException e) {
+            return "❌ Watch failed: " + e.getMessage();
         }
     }
 }
