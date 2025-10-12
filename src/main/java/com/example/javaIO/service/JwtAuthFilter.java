@@ -97,7 +97,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             byte[] keyBytes = secretEntity.getSecret().getBytes(StandardCharsets.UTF_8);
             SecretKey key = Keys.hmacShaKeyFor(keyBytes);
 
-            Claims claims = Jwts.parserBuilder()
+            Claims claims = Jwts.parser()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token)
