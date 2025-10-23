@@ -1,0 +1,164 @@
+🌐 1. ConcurrentHashMap
+🔹 Theory
+
+ConcurrentHashMap is a thread-safe version of HashMap.
+It allows multiple threads to read and write simultaneously without locking the entire map.
+
+Unlike Hashtable (which locks the whole map for every operation),
+
+ConcurrentHashMap uses segmented locking (in Java 7) and fine-grained locking (in Java 8 using CAS – Compare-And-Swap).
+
+⚙️ Internal Working
+
+Read operations → no locking needed (non-blocking).
+
+Write operations → lock only the specific bucket (not the whole map).
+
+No null keys or null values allowed.
+
+Iterators are fail-safe (they don’t throw ConcurrentModificationException).
+
+🧩 Common Methods
+Method	Description
+put(K key, V value)	                Inserts a key-value pair (thread-safe).
+get(Object key)     	            Returns value for a given key.
+remove(Object key)  	            Removes mapping for a key.
+putIfAbsent(K key, V value)	        Adds only if key not present.
+replace(K key, V oldVal, V newVal)	Replaces value atomically.
+forEach()	                        Parallel iteration supported.
+
+
+🧩 2. CopyOnWriteArrayList
+🔹 Theory
+
+It’s a thread-safe variant of ArrayList, part of java.util.concurrent.
+
+Every time you modify (add/remove/set) the list,
+it creates a new copy of the underlying array — hence the name Copy-On-Write.
+
+Read operations are fast and non-blocking.
+
+Write operations are costly (because of array copying).
+
+Best suited for read-heavy and write-rare scenarios.
+
+🧠 Used in
+
+Event listeners
+
+Caches where writes are infrequent
+| Method             | Description                              |
+| ------------------ | ---------------------------------------- |
+| `add(E e)`         | Adds element (creates new copy).         |
+| `get(int index)`   | Returns element.                         |
+| `remove(Object o)` | Removes element safely.                  |
+| `iterator()`       | Returns a snapshot iterator (fail-safe). |
+
+
+🧱 3. BlockingQueue (Interface)
+🔹 Theory
+
+BlockingQueue is a thread-safe queue designed for producer-consumer scenarios.
+
+If the queue is full, producer threads wait.
+
+If the queue is empty, consumer threads wait.
+
+It uses locks and condition variables internally.
+
+It is part of java.util.concurrent.
+
+🧩 Common Implementations
+| Class                   | Description                                 |
+| ----------------------- | ------------------------------------------- |
+| `ArrayBlockingQueue`    | Bounded queue backed by array.              |
+| `LinkedBlockingQueue`   | Bounded/unbounded queue (linked nodes).     |
+| `PriorityBlockingQueue` | Orders elements by priority.                |
+| `DelayQueue`            | Elements are available after delay expires. |
+
+| Method       | Behavior                                     |
+| ------------ | -------------------------------------------- |
+| `put(E e)`   | Waits if full.                               |
+| `take()`     | Waits if empty.                              |
+| `offer(E e)` | Adds if possible, else returns false.        |
+| `poll()`     | Retrieves and removes head or null if empty. |
+
+
+🧭 4. ConcurrentSkipListMap
+🔹 Theory
+
+A thread-safe, sorted, and scalable Map implementation based on a Skip List data structure.
+
+Think of it as a concurrent TreeMap (sorted order) but lock-free for reads and updates.
+
+Maintains elements in sorted ascending order of keys.
+
+Supports concurrent access and updates.
+
+Used when you need thread-safe + sorted map.
+
+🧩 Common Methods
+| Method                   | Description        |
+| ------------------------ | ------------------ |
+| `put(K key, V value)`    | Adds element.      |
+| `get(Object key)`        | Fetches value.     |
+| `remove(Object key)`     | Removes mapping.   |
+| `firstKey() / lastKey()` | Sorted navigation. |
+| `headMap(toKey)`         | View before a key. |
+| `tailMap(fromKey)`       | View after a key.  |
+
+🪶 5. ConcurrentLinkedQueue
+🔹 Theory
+
+A lock-free, unbounded, thread-safe queue using CAS (Compare-And-Swap) operations.
+
+Based on linked nodes, not arrays.
+
+Ideal for high-performance concurrent access.
+
+No blocking — producers and consumers never wait.
+
+| Method       | Description                                 |
+| ------------ | ------------------------------------------- |
+| `offer(E e)` | Inserts element (non-blocking).             |
+| `poll()`     | Retrieves and removes head (null if empty). |
+| `peek()`     | Reads head without removing.                |
+| `isEmpty()`  | Checks if queue is empty.                   |
+
+
+| Class                   | Description                                       | Use Case                               |
+| ----------------------- | ------------------------------------------------- | -------------------------------------- |
+| `ConcurrentSkipListSet` | Thread-safe, sorted `Set` (based on SkipListMap). | Sorted concurrent set.                 |
+| `LinkedBlockingDeque`   | Double-ended queue (thread-safe).                 | Producer-consumer with both ends.      |
+| `SynchronousQueue`      | No capacity; handoff between threads.             | Direct handoff (like a meeting point). |
+| `DelayQueue`            | Elements available after delay time.              | Scheduled tasks.                       |
+| `PriorityBlockingQueue` | Elements ordered by priority.                     | Task prioritization.                   |
+
+
+| Collection            | Type  | Blocking | Ordered | Thread Safe | Typical Use                   |
+| --------------------- | ----- | -------- | ------- | ----------- | ----------------------------- |
+| ConcurrentHashMap     | Map   | ❌        | ❌       | ✅           | Thread-safe key-value store   |
+| CopyOnWriteArrayList  | List  | ❌        | ✅       | ✅           | Read-heavy list               |
+| BlockingQueue         | Queue | ✅        | FIFO    | ✅           | Producer-consumer             |
+| ConcurrentSkipListMap | Map   | ❌        | ✅       | ✅           | Sorted concurrent map         |
+| ConcurrentLinkedQueue | Queue | ❌        | FIFO    | ✅           | Non-blocking concurrent queue |
+
+
+🔥 Interview Quick Answers
+
+Q1: Why not use Hashtable or Vector?
+➡️ They block the entire structure on every operation → poor scalability.
+
+Q2: Which concurrent collection allows blocking behavior?
+➡️ BlockingQueue and its variants.
+
+Q3: Which concurrent collection is best for read-heavy use?
+➡️ CopyOnWriteArrayList.
+
+Q4: Which one maintains sorted order?
+➡️ ConcurrentSkipListMap and ConcurrentSkipListSet.
+
+Q5: Which one is lock-free?
+➡️ ConcurrentLinkedQueue.
+
+
