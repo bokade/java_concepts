@@ -25,3 +25,32 @@
 | **Lazy Evaluation**          | Streams don’t run until a terminal operation (`forEach`, `collect`, etc.) is called | Interviewers love this question                       |
 
 
+| Method                               | Description                                                       | Example                               |
+| ------------------------------------ | ----------------------------------------------------------------- | ------------------------------------- |
+| **forEach(Consumer)**                | Loop through each element                                         | `forEach(System.out::println)`        |
+| **forEachOrdered(Consumer)**         | Like forEach but maintains encounter order (for parallel streams) | `forEachOrdered(System.out::println)` |
+| **toArray() / toArray(IntFunction)** | Convert stream to array                                           | `toArray(String[]::new)`              |
+| **reduce(BinaryOperator)**           | Combine elements to single result                                 | `reduce(Integer::sum)`                |
+| **collect(Collector)**               | Convert to collection/map/etc.                                    | `collect(Collectors.toList())`        |
+| **count()**                          | Count elements                                                    | `count()`                             |
+| **min(Comparator)**                  | Get min element                                                   | `min(Integer::compare)`               |
+| **max(Comparator)**                  | Get max element                                                   | `max(Integer::compare)`               |
+| **findFirst()**                      | Get first element                                                 | `findFirst().get()`                   |
+| **findAny()**                        | Get any element (useful in parallel)                              | `findAny().get()`                     |
+| **anyMatch(Predicate)**              | Returns true if any match                                         | `anyMatch(x -> x > 5)`                |
+| **allMatch(Predicate)**              | Returns true if all match                                         | `allMatch(x -> x > 5)`                |
+| **noneMatch(Predicate)**             | Returns true if none match                                        | `noneMatch(x -> x < 0)`               |
+
+
+5️⃣ Collector Utility Methods (Used inside collect())
+| Collector Method                         | Use                           |
+| ---------------------------------------- | ----------------------------- |
+| `toList()`                               | Collect into List             |
+| `toSet()`                                | Collect into Set              |
+| `toMap(keyMapper, valueMapper)`          | Convert to Map                |
+| `joining()`                              | Concatenate strings           |
+| `counting()`                             | Count elements                |
+| `summingInt()`, `averagingInt()`         | Summation, average            |
+| `groupingBy(Function)`                   | Group by key                  |
+| `partitioningBy(Predicate)`              | Partition into true/false map |
+| `mapping(Function, downstreamCollector)` | Transform + collect           |
