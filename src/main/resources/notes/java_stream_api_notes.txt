@@ -12,3 +12,16 @@
 
 
 
+| Concept                      | Real-Time Use                                                                       | Interview Tip                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **filter()**                 | Filtering lists (active users, valid data, etc.)                                    | Often asked with `Predicate` functional interface     |
+| **map()**                    | Transforming (convert entity → DTO, string → uppercase)                             | Commonly combined with `collect()`                    |
+| **flatMap()**                | Flatten nested collections (e.g., Employee → List<Address>)                         | Always explain 1-to-many mapping                      |
+| **distinct()**               | Remove duplicates                                                                   | Based on `equals()` & `hashCode()`                    |
+| **sorted()**                 | Sorting list data                                                                   | Default uses natural order                            |
+| **peek()**                   | Debug pipelines                                                                     | Do NOT use for modifying data                         |
+| **limit(), skip()**          | Pagination-like operations                                                          | Common in APIs (e.g., `skip(offset).limit(pageSize)`) |
+| **takeWhile(), dropWhile()** | Stream slicing (since Java 9)                                                       | Mention “short-circuiting” behavior                   |
+| **Lazy Evaluation**          | Streams don’t run until a terminal operation (`forEach`, `collect`, etc.) is called | Interviewers love this question                       |
+
+
