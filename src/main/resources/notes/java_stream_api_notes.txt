@@ -54,3 +54,28 @@
 | `groupingBy(Function)`                   | Group by key                  |
 | `partitioningBy(Predicate)`              | Partition into true/false map |
 | `mapping(Function, downstreamCollector)` | Transform + collect           |
+
+
+
+| Category           | Method                                    | Key Notes                                                                     |
+| ------------------ | ----------------------------------------- | ----------------------------------------------------------------------------- |
+| **Iteration**      | `forEach`, `forEachOrdered`               | `forEach` may not preserve order in parallel streams; `forEachOrdered` does.  |
+| **Conversion**     | `toArray()`                               | `toArray(IntFunction)` for typed array.                                       |
+| **Aggregation**    | `reduce()`                                | Takes an identity and accumulator; returns single result (sum, max, product). |
+| **Collection**     | `collect()`                               | Converts to List, Set, Map, etc. via `Collectors`.                            |
+| **Counting**       | `count()`                                 | Fast count of elements.                                                       |
+| **Min/Max**        | `min()`, `max()`                          | Returns `Optional<T>` based on comparator.                                    |
+| **Finding**        | `findFirst()`, `findAny()`                | `findAny()` can give better parallel performance.                             |
+| **Matching**       | `anyMatch()`, `allMatch()`, `noneMatch()` | Used for conditional checks (returns boolean).                                |
+| **New (Java 16+)** | `toList()`, `toSet()`, `toMap()`          | Immutable versions without Collectors.                                        |
+
+
+| Type       | Common Collector                                                | Description             |
+| ---------- | --------------------------------------------------------------- | ----------------------- |
+| Simple     | `toList(), toSet(), toMap()`                                    | Collect to collections  |
+| Aggregate  | `counting(), summingInt(), averagingDouble(), summarizingInt()` | For numeric summaries   |
+| String     | `joining()`                                                     | Combine into string     |
+| Grouping   | `groupingBy(), groupingByConcurrent()`                          | Classify/group data     |
+| Partition  | `partitioningBy()`                                              | Boolean-based split     |
+| Downstream | `mapping(), reducing(), collectingAndThen()`                    | Nested operations       |
+| Custom     | `toCollection(TreeSet::new)`                                    | Specify collection type |
