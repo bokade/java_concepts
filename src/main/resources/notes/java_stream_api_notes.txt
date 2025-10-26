@@ -1,0 +1,14 @@
+| Method                                | Use                                        | Notes                               |
+| ------------------------------------- | ------------------------------------------ | ----------------------------------- |
+| `collection.stream()`                 | Convert any collection to stream           | Most common                         |
+| `Arrays.stream()`                     | Works for arrays (Object[] or primitives)  | For `int[]`, returns `IntStream`    |
+| `Stream.of()`                         | Creates a finite stream from fixed values  | Handy for testing                   |
+| `Stream.builder()`                    | Build stream dynamically                   | Good for dynamic inputs             |
+| `Stream.generate(Supplier)`           | Infinite stream (must limit)               | Use for random / constant sequences |
+| `Stream.iterate(seed, UnaryOperator)` | Infinite arithmetic / custom logic stream  | Good for number sequences           |
+| `Stream.concat(s1, s2)`               | Combine two streams                        | Works for same type streams         |
+| `Stream.ofNullable()`                 | Stream of one or zero elements (null-safe) | Introduced in Java 9                |
+| `IntStream.range(a,b)`                | For numeric range                          | Includes a, excludes b              |
+
+
+
