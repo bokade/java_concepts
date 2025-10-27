@@ -1,0 +1,95 @@
+🧩 1. What is a Thread?
+
+👉 A thread is the smallest unit of execution inside a program.
+Each Java program runs at least one main thread (the one that runs your main() method).
+
+💡 You can think of:
+
+Process = an independent running program (e.g., chrome.exe, java.exe)
+
+Thread = a lightweight subprocess inside a process
+
+Each process can have multiple threads sharing the same memory.
+
+🧠 Example analogy:
+
+Imagine a restaurant:
+
+Process → The restaurant
+
+Threads → The waiters inside the restaurant
+All waiters (threads) work in parallel but share the same kitchen (memory).
+
+🧩 2. Why Multithreading?
+
+✅ Advantages:
+
+Better CPU utilization (tasks run in parallel)
+
+Better performance in I/O operations (e.g., file read + database call)
+
+Used in real-world systems:
+
+Web servers
+
+Banking systems
+
+Gaming / UI applications
+
+❌ Disadvantages:
+
+Complex debugging
+
+Synchronization issues (data corruption if not managed properly)
+
+Deadlocks, race conditions
+
+🧩 3. Thread Lifecycle (Important for interviews)
+
+A Java thread has several states (from Thread.State enum):
+
+State	Meaning
+NEW	Thread object created but start() not called
+RUNNABLE	Thread ready to run or running
+BLOCKED/WAITING	Waiting for lock or other thread
+TERMINATED (DEAD)	Thread finished execution
+
+Lifecycle looks like this:
+
+NEW → RUNNABLE → RUNNING → WAITING/BLOCKED → TERMINATED
+
+
+Important Thread Methods (Interview Essentials)
+| Method                    | Description                                    |
+| ------------------------- | ---------------------------------------------- |
+| `start()`                 | Starts a new thread, internally calls `run()`  |
+| `run()`                   | Code executed by the thread                    |
+| `sleep(ms)`               | Pause thread for given time                    |
+| `join()`                  | Waits for a thread to finish before continuing |
+| `isAlive()`               | Checks if thread is still running              |
+| `getName()` / `setName()` | Gets/sets thread name                          |
+| `setPriority(int)`        | Sets priority (1–10, default=5)                |
+
+
+Thread Scheduling & Priority (Quick Overview)
+
+Java thread scheduler decides which thread runs next.
+
+Priority range: Thread.MIN_PRIORITY (1) → Thread.MAX_PRIORITY (10)
+Default = 5
+
+Higher priority threads may get more CPU time, but not guaranteed (depends on OS).
+
+t1.setPriority(Thread.MAX_PRIORITY);
+t2.setPriority(Thread.MIN_PRIORITY);
+
+
+ThreadGroup (Basic Awareness)
+
+A ThreadGroup is used to group multiple threads together for easier management. Rarely used now since ExecutorService replaced it.
+
+Example:
+
+ThreadGroup group = new ThreadGroup("MyGroup");
+Thread t1 = new Thread(group, new MyRunnable(), "T1");
+Thread t2 = new Thread(group, new MyRunnable(), "T2");
