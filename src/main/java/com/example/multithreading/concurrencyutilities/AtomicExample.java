@@ -3,6 +3,7 @@ package com.example.multithreading.concurrencyutilities;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AtomicExample {
+
     public static void main(String[] args) {
         AtomicInteger count = new AtomicInteger(0);
 
