@@ -9,6 +9,7 @@ public class CompressionController {
     @Autowired
     private CompressionService compressionService;
 
+
     // ✅ API to compress folder
     @PostMapping("/compress")
     public String compressFolder(@RequestParam String sourceFolder,
