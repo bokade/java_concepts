@@ -125,6 +125,7 @@ public class FileService {
         }
     }
 
+
     // Write content line by line
     public String writesToFile(String content) {
         try (FileWriter writer = new FileWriter(FILES_PATH, true)) { // append = true
