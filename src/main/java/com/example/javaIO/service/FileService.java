@@ -137,6 +137,7 @@ public class FileService {
     }
 
 
+
     // Read content char by char
     public String readsFromFile() {
         StringBuilder sb = new StringBuilder();
