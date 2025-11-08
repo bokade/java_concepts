@@ -1,6 +1,7 @@
 package com.example.integerMethods;
 
 public class IntegerClassDemo {
+
     public static void main(String[] args) {
         System.out.println("===== 1️⃣ Conversion Methods =====");
 
