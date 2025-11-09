@@ -20,6 +20,7 @@ public class IntegerClassDemo {
         // toString()
         System.out.println("toString() → " + numObj2.toString());
 
+
         // toBinaryString, toHexString, toOctalString
         int val = 25;
         System.out.println("toBinaryString(25) → " + Integer.toBinaryString(val));
