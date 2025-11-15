@@ -1,0 +1,160 @@
+🔹 1. What is Java I/O?
+
+I/O = Input/Output
+It is a mechanism to perform data transfer — reading data (input) and writing data (output) between programs and external sources like files, network sockets, or memory.
+
+Java I/O is based on the Stream concept — a continuous flow of data (like a pipeline).
+
+🔹 2. Types of Streams
+| Type                 | Description                                               | Data Type                 |
+| -------------------- | --------------------------------------------------------- | ------------------------- |
+| **Byte Stream**      | For binary data like images, audio, video, or executables | 8-bit bytes               |
+| **Character Stream** | For text data like text files, XML, JSON, etc.            | 16-bit Unicode characters |
+
+
+🔹 3. BYTE STREAMS
+
+Byte streams are built on two main abstract classes:
+
+InputStream → For reading bytes
+
+OutputStream → For writing bytes
+
+You cannot use abstract classes directly; instead, you use their concrete subclasses.
+
+🧩 InputStream (Abstract Class)
+
+Package: java.io
+Purpose: To read data (byte-by-byte) from a source.
+
+🔸 Common Methods:
+| Method                                 | Description                                               |
+| -------------------------------------- | --------------------------------------------------------- |
+| `int read()`                           | Reads one byte; returns -1 if end of file                 |
+| `int read(byte[] b)`                   | Reads bytes into an array; returns number of bytes read   |
+| `int read(byte[] b, int off, int len)` | Reads up to `len` bytes into `b` starting at offset `off` |
+| `void close()`                         | Closes the stream and releases system resources           |
+| `int available()`                      | Returns number of bytes that can be read without blocking |
+| `long skip(long n)`                    | Skips n bytes of input                                    |
+
+
+🧩 OutputStream (Abstract Class)
+
+Purpose: To write bytes to a destination.
+
+🔸 Common Methods:
+| Method                                   | Description                                              |
+| ---------------------------------------- | -------------------------------------------------------- |
+| `void write(int b)`                      | Writes one byte                                          |
+| `void write(byte[] b)`                   | Writes all bytes from the array                          |
+| `void write(byte[] b, int off, int len)` | Writes specific bytes from array                         |
+| `void flush()`                           | Forces data to be written to the destination immediately |
+| `void close()`                           | Closes the stream                                        |
+
+
+📂 Common Classes (Implementation)
+| Class                                            | Description                                    | When to Use                          |
+| ------------------------------------------------ | ---------------------------------------------- | ------------------------------------ |
+| **FileInputStream**                              | Reads raw bytes from a file                    | Binary files (images, pdfs)          |
+| **FileOutputStream**                             | Writes raw bytes to a file                     | Binary files                         |
+| **BufferedInputStream / BufferedOutputStream**   | Adds buffering → improves performance          | When reading/writing large files     |
+| **ByteArrayInputStream / ByteArrayOutputStream** | Works with data in memory (byte arrays)        | For in-memory operations             |
+| **DataInputStream / DataOutputStream**           | Reads/writes Java primitive data types         | Serialization or binary file storage |
+| **ObjectInputStream / ObjectOutputStream**       | Reads/writes objects                           | Serialization                        |
+| **PipedInputStream / PipedOutputStream**         | For communication between threads              | Multi-threaded data transfer         |
+| **FilterInputStream / FilterOutputStream**       | Used for custom stream filtering               | Creating your own filters            |
+| **PrintStream**                                  | Provides print() and println() for text output | Console/file logging                 |
+
+
+🔹 4. CHARACTER STREAMS
+
+Character streams are based on:
+
+Reader (abstract class for reading)
+
+Writer (abstract class for writing)
+
+They handle 16-bit Unicode characters (supporting all languages).
+
+🧩 Reader (Abstract Class)
+
+Purpose: To read characters (not bytes).
+
+🔸 Common Methods:
+| Method                                    | Description                          |
+| ----------------------------------------- | ------------------------------------ |
+| `int read()`                              | Reads a single character             |
+| `int read(char[] cbuf)`                   | Reads multiple characters            |
+| `int read(char[] cbuf, int off, int len)` | Reads part of array                  |
+| `boolean ready()`                         | Checks if stream is ready to be read |
+| `void close()`                            | Closes the stream                    |
+| `long skip(long n)`                       | Skips characters                     |
+
+
+🧩 Writer (Abstract Class)
+
+Purpose: To write characters.
+
+🔸 Common Methods:
+| Method                    | Description          |
+| ------------------------- | -------------------- |
+| `void write(int c)`       | Writes one character |
+| `void write(char[] cbuf)` | Writes char array    |
+| `void write(String str)`  | Writes string        |
+| `void flush()`            | Flushes data         |
+| `void close()`            | Closes writer        |
+
+
+📂 Common Classes (Implementation)
+| Class                                      | Description                          | When to Use                    |
+| ------------------------------------------ | ------------------------------------ | ------------------------------ |
+| **FileReader / FileWriter**                | Reads/Writes character files         | Text files                     |
+| **BufferedReader / BufferedWriter**        | High performance + `readLine()`      | Reading text line by line      |
+| **InputStreamReader / OutputStreamWriter** | Bridges byte ↔ character streams     | File encoding conversion       |
+| **StringReader / StringWriter**            | Works with String in memory          | Temporary text storage         |
+| **CharArrayReader / CharArrayWriter**      | Reads/writes from character arrays   | In-memory character operations |
+| **PrintWriter**                            | print(), println(), format() methods | Console or file printing       |
+| **FilterReader / FilterWriter**            | For creating custom filters          | Extending functionality        |
+| **PipedReader / PipedWriter**              | Communication between threads        | Thread-based text transfer     |
+
+🔹 5. When to Use What
+| Scenario                                    | Use                                           | Why                         |
+| ------------------------------------------- | --------------------------------------------- | --------------------------- |
+| Reading/Writing binary (images, PDF, audio) | **Byte Streams (InputStream / OutputStream)** | Works with raw bytes        |
+| Reading/Writing text (UTF-8, Unicode)       | **Character Streams (Reader / Writer)**       | Converts bytes → characters |
+| Faster performance with large data          | **Buffered Streams**                          | Reduces disk access         |
+| Primitive or Object data                    | **Data/Object Streams**                       | For serialization           |
+| Communication between threads               | **Piped Streams**                             | Enables thread I/O pipeline |
+| Printing formatted text                     | **PrintStream / PrintWriter**                 | Simple and user-friendly    |
+
+🔹 6. MNC-Level Interview Notes 🧠
+
+✅ Concept Questions:
+
+Difference between Byte Stream and Character Stream
+
+What does flush() do?
+
+Why are InputStream and OutputStream abstract?
+
+What is buffering and why is it needed?
+
+What is the difference between FileWriter and BufferedWriter?
+
+How does InputStreamReader act as a bridge between byte and character streams?
+
+What’s the difference between PrintStream and PrintWriter?
+
+✅ Practical Question:
+
+Write a program to copy the content of one file into another using both Byte and Character Streams.
+
+How will you handle encoding (UTF-8 vs ISO-8859-1) while reading a file?
+
+🔹 7. Summary Table
+| Category             | Base Class   | Common Child Classes                                                                                             |
+| -------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------- |
+| **Byte Input**       | InputStream  | FileInputStream, BufferedInputStream, ByteArrayInputStream, DataInputStream, ObjectInputStream                   |
+| **Byte Output**      | OutputStream | FileOutputStream, BufferedOutputStream, ByteArrayOutputStream, DataOutputStream, ObjectOutputStream, PrintStream |
+| **Character Input**  | Reader       | FileReader, BufferedReader, InputStreamReader, StringReader, CharArrayReader                                     |
+| **Character Output** | Writer       | FileWriter, BufferedWriter, OutputStreamWriter, StringWriter, CharArrayWriter, PrintWriter                       |

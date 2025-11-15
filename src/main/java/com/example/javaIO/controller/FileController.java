@@ -4,15 +4,19 @@ package com.example.javaIO.controller;
 import com.example.javaIO.model.*;
 import com.example.javaIO.service.FileService;
 import com.example.javaIO.service.StudentService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -579,5 +583,24 @@ public class FileController {
     }
 
 
-
+    @PostMapping(value = "/upload-unstract-file", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<JsonNode> uploadFile(@RequestPart("file") MultipartFile file) {
+        try {
+            JsonNode response = fileService.executeUnstractUploadCurl(file);
+            System.out.println("controller response: " + response);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                // Convert error message string to JsonNode
+                ObjectMapper mapper = new ObjectMapper();
+                String errorJson = "{\"error\": \"" + e.getMessage() + "\"}";
+                JsonNode errorNode = mapper.readTree(errorJson);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorNode);
+            } catch (Exception innerEx) {
+                // Fallback: if even JSON creation fails
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
 }

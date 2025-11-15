@@ -4,6 +4,8 @@ import com.example.javaIO.repository.JwtSecretRepository;
 import com.example.javaIO.repository.SubmissionRepository;
 import com.example.javaIO.repository.UserRepository;
 import com.example.utils.ZipUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -13,6 +15,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.SecretKey;
 import java.io.*;
@@ -1395,4 +1398,114 @@ public class FileService {
         }
     }
 
+
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Constants from your original request
+    private static final String API_URL = "https://us-central.unstract.com/deployment/api/org_kSuAb3rXXvOxXFMJ/poc_2_wo_1759300408741/";
+    private static final String AUTH_TOKEN = "1a283057-9915-47a2-bbb0-a895a8e104f9";
+
+    public JsonNode executeUnstractUploadCurl(MultipartFile file) throws IOException {
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty.");
+        }
+
+        // 1. Save MultipartFile to a temporary location
+        // This is necessary because cURL needs a filesystem path.
+        Path tempDir = Files.createTempDirectory("unstract_upload");
+        Path tempFilePath = tempDir.resolve(file.getOriginalFilename());
+
+        // Copy the file content to the temporary path
+        Files.copy(file.getInputStream(), tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+        File tempFile = tempFilePath.toFile();
+
+        JsonNode result = null;
+
+        try {
+            // 2. Construct the cURL command
+            String filePathEscaped = tempFile.getAbsolutePath();
+
+            // The multipart form fields:
+//            String curlCommand = String.format(
+//                    "curl --location '%s' " +
+//                            "--header 'Authorization: Bearer %s' " +
+//                            "--form 'files=@\"%s\"' " +              // Note: Double-quotes around path for safety
+//                            "--form 'timeout=\"300\"' " +
+//                            "--form 'include_metadata=\"False\"' " +
+//                            "--form 'include_metrics=\"False\"' " +
+//                            "--form 'llm_profile_id=\"\"'",
+//                    API_URL,
+//                    AUTH_TOKEN,
+//                    filePathEscaped
+//            );
+
+            String curlCommand = String.format(
+                    "curl --location \"%s\" " +
+                            "--header \"Authorization: Bearer %s\" " +
+                            "--form \"files=@%s\" " +
+                            "--form \"timeout=300\" " +
+                            "--form \"include_metadata=False\" " +
+                            "--form \"include_metrics=False\"",
+                    API_URL,
+                    AUTH_TOKEN,
+                    filePathEscaped
+            );
+
+
+
+
+            // 3. Execute the command
+            // ProcessBuilder processBuilder = new ProcessBuilder("bash", "-c", curlCommand);
+            //  ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", curlCommand);
+            String os = System.getProperty("os.name").toLowerCase();
+            ProcessBuilder processBuilder = os.contains("win") ? new ProcessBuilder("cmd.exe", "/c", curlCommand) : new ProcessBuilder("bash", "-c", curlCommand);
+            Process process = processBuilder.start();
+
+            // Capture output and error streams
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+            StringBuilder output = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+
+            StringBuilder errorOutput = new StringBuilder();
+            while ((line = errorReader.readLine()) != null) {
+                errorOutput.append(line);
+            }
+
+            // Wait for the process to finish
+            int exitCode;
+            try {
+                exitCode = process.waitFor();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt(); // Restore interrupted status
+                exitCode = process.exitValue();
+            }
+
+            // 4. Handle Response
+            if (exitCode == 0 && output.length() > 0) {
+                // Assuming success returns JSON
+                result = objectMapper.readTree(output.toString());
+            } else {
+                // If the exit code is non-zero, the error might be in the output or error stream
+                throw new RuntimeException("cURL execution failed with exit code: " + exitCode
+                        + "\nOutput: " + output.toString()
+                        + "\nError: " + errorOutput.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IOException("Failed to execute cURL command.", e);
+        } finally {
+            // 5. Cleanup the temporary file and directory
+            Files.deleteIfExists(tempFile.toPath());
+            Files.deleteIfExists(tempDir);
+        }
+
+        return result;
+    }
 }
