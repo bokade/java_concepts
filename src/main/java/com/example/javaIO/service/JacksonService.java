@@ -1,5 +1,6 @@
 package com.example.javaIO.service;
 
+import com.example.javaIO.model.Employeee;
 import com.example.javaIO.model.User;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,6 +10,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -17,6 +22,8 @@ public class JacksonService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private final Map<Integer, Employeee> map = new HashMap<>();
 
     // 1. Convert User object to JSON
     public String convertObjectToJson(User user) throws Exception {
@@ -174,5 +181,62 @@ public class JacksonService {
     public User deserializeUser(String json) throws Exception {
         return objectMapper.readValue(json, User.class);
     }
+
+
+    public Employeee save(Employeee emp) {
+        map.put(emp.getId(), emp);
+        return emp;
+    }
+
+    public Employeee get(int id) {
+        return map.get(id);
+
+    }
+
+
+    public Collection<Employeee> getAll() {
+        return map.values();
+    }
+
+    private final Map<Integer, User> store = new HashMap<>();
+
+        public User save(User user) {
+            store.put(user.getId(), user);
+            return user;
+        }
+
+        public User gets(int id) {
+            return store.get(id);
+        }
+
+
+
+
+       // ---------
+
+    public User saves(User u) {
+        store.put(u.getId(), u);
+        return u;
+    }
+
+    public User getss(int id) { return store.get(id); }
+
+    public Collection<User> getAlls() { return store.values(); }
+
+    // write a user to file (JSON)
+    public void writeToFile(User user, File file) throws IOException {
+        objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, user);
+    }
+
+    // read user from file
+    public User readFromFile(File file) throws IOException {
+        return objectMapper.readValue(file, User.class);
+    }
+
+    // for JsonMergePatch / merge: returns JsonNode
+    public JsonNode toJsonNode(Object obj) {
+        return objectMapper.valueToTree(obj);
+    }
+
 
 }

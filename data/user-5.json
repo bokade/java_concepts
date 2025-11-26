@@ -1,0 +1,10 @@
+{
+  "full_name" : "FileUser",
+  "city" : "Mumbai",
+  "dob" : "1992-07-07",
+  "age" : 28,
+  "id" : 5,
+  "city" : null,
+  "country" : null,
+  "nestedUser" : null
+}
