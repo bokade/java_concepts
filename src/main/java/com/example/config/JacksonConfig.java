@@ -29,6 +29,7 @@ public class JacksonConfig {
         // Avoid failure on unknown fields
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
+
         return mapper;
 
     }
