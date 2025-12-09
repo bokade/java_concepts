@@ -37,6 +37,7 @@ public class CurlRunner {
                 }
             }
 
+
             int exitCode = process.waitFor();
             System.out.println("Exited with code: " + exitCode);
 
