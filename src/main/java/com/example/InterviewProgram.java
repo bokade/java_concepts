@@ -19,8 +19,6 @@ public class InterviewProgram {
                 System.out.println(m.getKey()+" : "+m.getValue());
             }
         }
-
-
         Map<Integer, Long> mapp = list.stream().collect(Collectors.groupingBy(e -> e, LinkedHashMap::new, Collectors.counting()));
         mapp.entrySet().stream().filter(e -> e.getValue() > 1).forEach(e -> System.out.println(e.getKey() + " : " + e.getValue()));
 
