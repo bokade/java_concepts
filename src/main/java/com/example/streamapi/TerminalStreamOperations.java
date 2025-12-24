@@ -7,8 +7,6 @@ public class TerminalStreamOperations {
 
     public static void main(String[] args) {
 
-
-
         List<Integer> numbers = List.of(3, 7, 2, 9, 5, 2, 7, 10, 4);
 
         System.out.println("Original List: " + numbers);
