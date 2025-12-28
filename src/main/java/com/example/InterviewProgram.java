@@ -9,6 +9,7 @@ public class InterviewProgram {
     public static void main(String[] args) {
         List<Integer> list = List.of(2, 4, 6, 7,3,2,5,7,4);
 
+
         Map<Integer, Integer> map = new LinkedHashMap();
         for(int i = 0; i<list.size(); i++){
             map.put(list.get(i), map.getOrDefault(list.get(i),0)+1);
