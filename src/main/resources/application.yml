@@ -1,0 +1,16 @@
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: sbokade181@gmail.com
+    password: ${GMAIL_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+#  freemarker:
+#    template-loader-path: classpath:/templates/
+#    suffix: .ftl

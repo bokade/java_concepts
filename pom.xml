@@ -40,6 +40,17 @@
 			<version>2.15.2</version> <!-- latest stable version -->
 		</dependency>
 
+		<!-- Mail -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+
+		<!-- FreeMarker -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-freemarker</artifactId>
+		</dependency>
 
 		<!-- Lombok -->
 		<dependency>
