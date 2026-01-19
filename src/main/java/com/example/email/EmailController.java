@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 public class EmailController {
 
 
+
     @Autowired
     private EmailService emailService;
 
