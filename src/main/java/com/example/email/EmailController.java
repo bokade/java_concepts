@@ -7,8 +7,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/email")
 public class EmailController {
 
-
-
     @Autowired
     private EmailService emailService;
 
