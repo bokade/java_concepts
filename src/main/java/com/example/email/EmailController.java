@@ -12,11 +12,7 @@ public class EmailController {
 
     @PostMapping("/send")
     public String sendEmail(@RequestBody EmailRequest request) {
-        emailService.sendDemoEmail(
-                request.getName(),
-                request.getPhone(),
-                request.getSendTo()
-        );
+        emailService.sendDemoEmail(request.getName(), request.getPhone(), request.getSendTo());
         return "Email sent successfully";
     }
 }
