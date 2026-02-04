@@ -11,7 +11,6 @@ public class TestClazz {
 
         String str = "management";
 
-
         Map<Character, Integer> countFreq = new LinkedHashMap<>();
         for(char c : str.toCharArray()){
             countFreq.put(c, countFreq.getOrDefault(c,0)+1);
