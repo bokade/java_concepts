@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 public class TestClazz {
 
+
     public static  void main(String[] args) {
         System.out.println("TestClazz is running...");
 
@@ -17,7 +18,6 @@ public class TestClazz {
         }
 
        countFreq.entrySet().stream().forEach(e-> System.out.println(e.getKey() + " : " + e.getValue()));
-
 
 
     }
