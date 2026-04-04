@@ -15,6 +15,7 @@ public class BlockingQueueExample {
             } catch (InterruptedException e) { e.printStackTrace(); }
         });
 
+
         Thread consumer = new Thread(() -> {
             try {
                 while (true) {
