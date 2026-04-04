@@ -16,6 +16,7 @@ public class BlockingQueueExample {
         });
 
 
+
         Thread consumer = new Thread(() -> {
             try {
                 while (true) {
